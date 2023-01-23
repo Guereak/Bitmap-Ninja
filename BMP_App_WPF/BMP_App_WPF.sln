@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BMP_App_WPF", "BMP_App_WPF\BMP_App_WPF.csproj", "{F49B0C88-FE28-40EF-9939-345E22527219}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F49B0C88-FE28-40EF-9939-345E22527219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F49B0C88-FE28-40EF-9939-345E22527219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F49B0C88-FE28-40EF-9939-345E22527219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F49B0C88-FE28-40EF-9939-345E22527219}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C37B189-B182-4C76-AD11-12E706D6E893}
+	EndGlobalSection
+EndGlobal
