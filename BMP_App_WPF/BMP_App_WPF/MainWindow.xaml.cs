@@ -30,7 +30,7 @@ namespace BMP_App_WPF
         void DisplayImageGrid()
         {
             //Import the Image
-            MyImage image = new MyImage("path");
+            //MyImage image = new MyImage("path");
             
 
             // Create the Grid    

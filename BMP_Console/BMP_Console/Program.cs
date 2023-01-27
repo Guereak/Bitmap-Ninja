@@ -10,16 +10,17 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestGrayScale();   
+            TestGrayScale();
+            Console.ReadKey();
         }
 
         static void TestGrayScale()
         {
-            Image img = new Image("../../SampleImages/coco.bmp");
+            Image img = new Image("../../SampleImages/lac.bmp");
 
             Image imgGrey = img.ToGrayScale();
 
-            imgGrey.Save("../../SampleImages/coco.bmp");
+            imgGrey.Save("../../SampleImages/lacGreyscale.bmp");
         }
     }
 }

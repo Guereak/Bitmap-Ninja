@@ -17,7 +17,7 @@ namespace BMP_App_WPF
 
         public MyImage(string path)
         {
-            //fileBytes = File.ReadAllBytes(path);
+            fileBytes = File.ReadAllBytes(path);
 
             //File metadata: header
             for (int i = 0; i < 14; i++)
