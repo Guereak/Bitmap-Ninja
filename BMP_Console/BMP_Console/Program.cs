@@ -16,9 +16,9 @@ namespace BMP_Console
 
         static void TestGrayScale()
         {
-            Image img = new Image("../../SampleImages/lac.bmp");
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            Image imgGrey = img.ToGrayScale();
+            MyImage imgGrey = img.ToGrayScale();
 
             imgGrey.Save("../../SampleImages/lacGreyscale.bmp");
         }

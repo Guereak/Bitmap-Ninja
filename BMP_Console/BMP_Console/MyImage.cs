@@ -1,56 +1,35 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
+using System.Linq;
 
 namespace BMP_Console
 {
-    class Image
+    class MyImage
     {
         #region properties
-        byte[] fileBytes;
-        byte[] headerBytes = new byte[14];
-        byte[] headerInfoBytes = new byte[40];
+        byte[] headerBytes;
+        byte[] headerInfoBytes;
+
+        //Make it into a matrix
         byte[] imageBytes;
 
         int height;
         int width;
+        int imgOffset;
         int bitsPerPixel;
         int bytesPerLine;
+
+        string imageType;
 
         #endregion properties
 
         #region constructors
-        public Image(string path)
+        public MyImage(string path)
         {
-            fileBytes = File.ReadAllBytes(path);
+            byte[] fileBytes = File.ReadAllBytes(path);
 
-            ResolveHeaders();
-        }
+            headerBytes = new byte[14];
 
-
-        public Image(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
-        {
-            fileBytes = new byte[imageBytes.Length + 54];
-
-            for(int i = 0; i < 14; i++)
-            {
-                fileBytes[i] += headerBytes[i];
-            }
-
-            for (int i = 0; i < 40; i++)
-            {
-                fileBytes[i + 14] += headerInfoBytes[i];
-            }
-            for (int i = 0; i < imageBytes.Length; i++)
-            {
-                fileBytes[i + 54] += imageBytes[i];
-            }
-        }
-        #endregion constructors
-
-
-        public void ResolveHeaders()
-        {
             //Populate headerBytes
             for (int i = 0; i < 14; i++)
                 headerBytes[i] = fileBytes[i];
@@ -58,12 +37,14 @@ namespace BMP_Console
             //Check that the headers first bytes correspond to BMP File
             if (headerBytes[0] != 66 || headerBytes[1] != 77)
                 throw new Exception("Invalid header");
+            else
+                imageType = "BM";
 
             //Get image offset from header
-            int imgOffset = ReadLittleEndian(new byte[] { headerBytes[10], headerBytes[11], headerBytes[12], headerBytes[13] });
+            imgOffset = Convertir_Endian_To_Int(new byte[] { headerBytes[10], headerBytes[11], headerBytes[12], headerBytes[13] });
 
             //Read the size of the DIM Header
-            int DIMSize = ReadLittleEndian(new byte[]{ fileBytes[14], fileBytes[15], fileBytes[16], fileBytes[17] });
+            int DIMSize = Convertir_Endian_To_Int(new byte[] { fileBytes[14], fileBytes[15], fileBytes[16], fileBytes[17] });
 
             headerInfoBytes = new byte[DIMSize];
 
@@ -72,9 +53,9 @@ namespace BMP_Console
                 headerInfoBytes[i - 14] = fileBytes[i];
 
             //Populate other properties
-            width = ReadLittleEndian(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
-            height = ReadLittleEndian(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
-            bitsPerPixel = ReadLittleEndian(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+            width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
+            height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+            bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
             //Populate imageBytes
@@ -84,11 +65,20 @@ namespace BMP_Console
                 imageBytes[i - imgOffset] = fileBytes[i];
         }
 
-        public static int ReadLittleEndian(byte[] bytes)
+
+        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
+        {
+            this.headerBytes = headerBytes;
+            this.headerInfoBytes = headerInfoBytes;
+            this.imageBytes = imageBytes;
+        }
+        #endregion constructors
+
+        public static int Convertir_Endian_To_Int(byte[] bytes)
         {
             int value = 0;
 
-            for(int i = 0; i < bytes.Length; i++)
+            for (int i = 0; i < bytes.Length; i++)
             {
                 value += (int)Math.Pow(256, i) * bytes[i];
             }
@@ -96,18 +86,23 @@ namespace BMP_Console
             return value;
         }
 
-
-        public void Save(string path)
+        public byte[] Convertir_Int_To_Endian(int val)      //TODO
         {
-            File.WriteAllBytes(path, fileBytes);
+            throw new NotImplementedException();
+        }
+
+        public void From_Image_To_File(string path)
+        {
+            //Rewrite without System.Linq
+            File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(imageBytes).ToArray());
         }
 
 
-        public Image ToGrayScale()
+        public MyImage ToGrayScale()
         {
             byte[] newImageBytes = new byte[imageBytes.Length];
 
-            for(int i = 0; i < height; i++)
+            for (int i = 0; i < height; i++)
             {
                 int j = 0;
                 while (j + 2 <= bytesPerLine)
@@ -125,7 +120,7 @@ namespace BMP_Console
                     j += 3;
                 }
             }
-            return new Image(headerBytes, headerInfoBytes, newImageBytes);
+            return new MyImage(headerBytes, headerInfoBytes, newImageBytes);
         }
     }
 }
