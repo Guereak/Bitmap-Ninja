@@ -29,12 +29,14 @@ namespace BMP_App_WPF
 
         void DisplayImageGrid()
         {
+            //Import the Image
+            MyImage image = new MyImage("path");
+            
+
             // Create the Grid    
             Grid DynamicGrid = new Grid();
-            DynamicGrid.HorizontalAlignment = HorizontalAlignment.Left;
-            DynamicGrid.VerticalAlignment = VerticalAlignment.Top;
-            DynamicGrid.ShowGridLines = true;
-            DynamicGrid.Background = new SolidColorBrush(Colors.LightSteelBlue);
+            DynamicGrid.HorizontalAlignment = HorizontalAlignment.Center;
+            DynamicGrid.VerticalAlignment = VerticalAlignment.Center;
 
             // Create Columns
             for (int i = 0; i < 10; i++)
