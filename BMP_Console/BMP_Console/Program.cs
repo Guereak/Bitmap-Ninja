@@ -10,9 +10,17 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-
+            TestGrayScale();
             Console.ReadKey();
+        }
+
+        static void TestGrayScale()
+        {
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+
+            MyImage imgGrey = img.ToGrayScale();
+
+            imgGrey.Save("../../SampleImages/lacGreyscale.bmp");
         }
     }
 }
