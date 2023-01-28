@@ -45,7 +45,8 @@
   <ItemGroup>
     <Compile Include="Image.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Image.cs" />
+    <Compile Include="MyImage.cs" />
+    <Compile Include="Pixel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

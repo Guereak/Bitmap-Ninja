@@ -122,5 +122,36 @@ namespace BMP_Console
             }
             return new MyImage(headerBytes, headerInfoBytes, newImageBytes);
         }
+
+        public MyImage ToBlackAndWhite()
+        {
+            byte[] newImageBytes = new byte[imageBytes.Length];
+
+            for(int i = 0; i < height; i++)
+            {
+                int j = 0;
+                while (j + 2 <= bytesPerLine)
+                {
+                    int r = imageBytes[i * bytesPerLine + j];
+                    int g = imageBytes[i * bytesPerLine + j + 1];
+                    int b = imageBytes[i * bytesPerLine + j + 2];
+
+                    int average = Convert.ToInt32((r + g + b) / 3);
+                    int color = 0; // Noir par défaut.
+                    if (average>128) 
+                    {
+                        color = 255; // On affecte Blanc.
+                    }              
+
+                    newImageBytes[i * bytesPerLine + j] = Convert.ToByte(color);
+                    newImageBytes[i * bytesPerLine + j + 1] = Convert.ToByte(color);
+                    newImageBytes[i * bytesPerLine + j + 2] = Convert.ToByte(color);
+
+                    j += 3;
+                }
+            }
+
+            return new MyImage(headerBytes, headerInfoBytes, newImageBytes);
+        }
     }
 }

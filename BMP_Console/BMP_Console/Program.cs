@@ -22,5 +22,14 @@ namespace BMP_Console
 
             imgGrey.Save("../../SampleImages/lacGreyscale.bmp");
         }
+
+        static void TestBlackAndWhite()
+        {
+            MyImage Initial = new MyImage("../../SampleImages/lac.bmp");
+
+            MyImage NoirEtBlanc = Initial.ToBlackAndWhite();
+
+            NoirEtBlanc.Save("../../SampleImages/lacBlackAndWhite.bmp");
+        }
     }
 }
