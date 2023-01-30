@@ -125,33 +125,22 @@ namespace BMP_Console
 
         public MyImage ToBlackAndWhite()
         {
-            byte[] newImageBytes = new byte[imageBytes.Length];
 
-            for(int i = 0; i < height; i++)
+            MyImage image = ToGrayScale();
+
+            for(int i = 0; i < image.imageBytes.Length; i++)
             {
-                int j = 0;
-                while (j + 2 <= bytesPerLine)
+                if (image.imageBytes[i] >= 64)      //Adapt treshold
                 {
-                    int r = imageBytes[i * bytesPerLine + j];
-                    int g = imageBytes[i * bytesPerLine + j + 1];
-                    int b = imageBytes[i * bytesPerLine + j + 2];
-
-                    int average = Convert.ToInt32((r + g + b) / 3);
-                    int color = 0; 
-                    if (average > 96)   // Run tests to find best value 
-                    {
-                        color = 255;
-                    }              
-
-                    newImageBytes[i * bytesPerLine + j] = Convert.ToByte(color);
-                    newImageBytes[i * bytesPerLine + j + 1] = Convert.ToByte(color);
-                    newImageBytes[i * bytesPerLine + j + 2] = Convert.ToByte(color);
-
-                    j += 3;
+                    image.imageBytes[i] = 255;
+                }
+                else
+                {
+                    image.imageBytes[i] = 0;
                 }
             }
 
-            return new MyImage(headerBytes, headerInfoBytes, newImageBytes);
+            return image;
         }
     }
 }
