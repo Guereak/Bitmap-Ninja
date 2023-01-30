@@ -137,10 +137,10 @@ namespace BMP_Console
                     int b = imageBytes[i * bytesPerLine + j + 2];
 
                     int average = Convert.ToInt32((r + g + b) / 3);
-                    int color = 0; // Noir par défaut.
-                    if (average>128) 
+                    int color = 0; 
+                    if (average > 96)   // Run tests to find best value 
                     {
-                        color = 255; // On affecte Blanc.
+                        color = 255;
                     }              
 
                     newImageBytes[i * bytesPerLine + j] = Convert.ToByte(color);
