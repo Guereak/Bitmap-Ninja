@@ -43,9 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Image.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="MyImage.cs" />
+    <Compile Include="Program.cs" />
+<<<<<<< HEAD
+    <Compile Include="MyImage.cs" />
+=======
+>>>>>>> cde1e72cfc96e7847cef5217c80df8df0937e4a9
     <Compile Include="Pixel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
