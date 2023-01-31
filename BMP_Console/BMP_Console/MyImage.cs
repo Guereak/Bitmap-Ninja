@@ -86,9 +86,46 @@ namespace BMP_Console
             return value;
         }
 
-        public byte[] Convertir_Int_To_Endian(int val)      //TODO
+        //Reminder change this
+        static byte[] Convertir_Int_To_Endian(int val)
         {
-            throw new NotImplementedException();
+            byte[] rep = null;
+            if (val >= 0)
+            {
+                rep = new byte[4];
+
+                if (val < 256)
+                {
+                    rep[0] = Convert.ToByte(val);
+                    rep[1] = 0;
+                    rep[2] = 0;
+                    rep[3] = 0;
+                }
+                else
+                {
+                    rep[3] = Convert.ToByte(val / (256 * 256 * 256));
+                    if (val >= 256 * 256 * 256)
+                    {
+                        int j = val / (256 * 256 * 256);
+                        val -= j * 256 * 256 * 256;
+                    }
+                    rep[2] = Convert.ToByte(val / (256 * 256));
+                    if (val >= 256 * 256)
+                    {
+                        int j = val / (256 * 256);
+                        val -= j * 256 * 256;
+                    }
+                    rep[1] = Convert.ToByte(val / 256);
+                    if (val >= 256)
+                    {
+                        int j = val / (256);
+                        val -= j * 256;
+                    }
+                    rep[0] = Convert.ToByte(val);
+
+                }
+            }
+            return rep;
         }
 
         public void From_Image_To_File(string path)
