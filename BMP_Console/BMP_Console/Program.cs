@@ -10,7 +10,7 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestBlackAndWhite();
+            TestGrayScale2();
             Console.ReadKey();
         }
 
@@ -21,6 +21,15 @@ namespace BMP_Console
             MyImage imgGrey = img.ToGrayScale();
 
             imgGrey.From_Image_To_File("../../SampleImages/lacGreyscale.bmp");
+        }
+
+        static void TestGrayScale2()
+        {
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+
+            //MyImage imgGrey = img.ToGrayScale2();
+
+            img.From_Image_To_File2("../../SampleImages/lacGreyscale2.bmp");
         }
 
         static void TestBlackAndWhite()

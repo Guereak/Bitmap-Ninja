@@ -12,6 +12,7 @@ namespace BMP_Console
 
         //Make it into a matrix
         byte[] imageBytes;
+        Pixel[,] imagePixels;
 
         int height;
         int width;
@@ -60,19 +61,44 @@ namespace BMP_Console
 
             //Populate imageBytes
             imageBytes = new byte[fileBytes.Length - imgOffset];
+            //
+            //for (int i = imgOffset; i < fileBytes.Length; i++)
+            //    imageBytes[i - imgOffset] = fileBytes[i];
 
-            for (int i = imgOffset; i < fileBytes.Length; i++)
-                imageBytes[i - imgOffset] = fileBytes[i];
+            PopulatePixels();
         }
 
-
+        //Discarded
         public MyImage(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
         {
             this.headerBytes = headerBytes;
             this.headerInfoBytes = headerInfoBytes;
             this.imageBytes = imageBytes;
         }
+
+        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
+        {
+            this.headerBytes = headerBytes;
+            this.headerInfoBytes = headerInfoBytes;
+            this.imagePixels = pixels;
+        }
+
         #endregion constructors
+
+        public void PopulatePixels()
+        {
+            imagePixels = new Pixel[width, height];
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    Pixel p = new Pixel(imageBytes[j + i * bytesPerLine], imageBytes[j + 1 + i * bytesPerLine], imageBytes[j + 2 + i * bytesPerLine]);
+
+                    imagePixels[j, i] = p;
+                }
+            }
+        }
 
         public static int Convertir_Endian_To_Int(byte[] bytes)
         {
@@ -132,6 +158,43 @@ namespace BMP_Console
         {
             //Rewrite without System.Linq
             File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(imageBytes).ToArray());
+        }
+
+        public void From_Image_To_File2(string path)
+        {
+            //Convert pixel matrix to bytes with padding
+            byte[] newImageBytes = new byte[bytesPerLine * height];
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
+                }
+            }
+
+            //Rewrite without System.Linq
+            File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(newImageBytes).ToArray());
+        }
+
+        public MyImage ToGrayScale2()
+        {
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    Pixel p = imagePixels[i, j];
+                    int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
+
+                    p.red = Convert.ToByte(grey);
+                    p.green = Convert.ToByte(grey);
+                    p.blue = Convert.ToByte(grey);
+                }
+            }
+
+            return new MyImage(headerBytes, headerInfoBytes, imagePixels);
         }
 
 
