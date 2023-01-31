@@ -27,7 +27,7 @@ namespace BMP_Console
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            //MyImage imgGrey = img.ToGrayScale2();
+            MyImage imgGrey = img.ToGrayScale2();
 
             img.From_Image_To_File2("../../SampleImages/lacGreyscale2.bmp");
         }

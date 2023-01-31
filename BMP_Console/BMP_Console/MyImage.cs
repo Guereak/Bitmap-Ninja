@@ -62,8 +62,8 @@ namespace BMP_Console
             //Populate imageBytes
             imageBytes = new byte[fileBytes.Length - imgOffset];
             //
-            //for (int i = imgOffset; i < fileBytes.Length; i++)
-            //    imageBytes[i - imgOffset] = fileBytes[i];
+            for (int i = imgOffset; i < fileBytes.Length; i++)
+                imageBytes[i - imgOffset] = fileBytes[i];
 
             PopulatePixels();
         }
@@ -93,7 +93,9 @@ namespace BMP_Console
             {
                 for(int j = 0; j < width; j++)
                 {
-                    Pixel p = new Pixel(imageBytes[j + i * bytesPerLine], imageBytes[j + 1 + i * bytesPerLine], imageBytes[j + 2 + i * bytesPerLine]);
+                    Pixel p = new Pixel(imageBytes[j * 3 + i * bytesPerLine], imageBytes[j  * 3+ 1 + i * bytesPerLine], imageBytes[j * 3 + 2 + i * bytesPerLine]);
+
+                    //Console.WriteLine($"r: {p.red}, g: {p.green}, b: {p.blue}");
 
                     imagePixels[j, i] = p;
                 }
@@ -169,7 +171,7 @@ namespace BMP_Console
             {
                 for(int j = 0; j < width; j++)
                 {
-                    newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                    newImageBytes[i * bytesPerLine + j * 3 ] = imagePixels[j, i].red;
                     newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
                     newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
                 }
