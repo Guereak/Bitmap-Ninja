@@ -244,5 +244,30 @@ namespace BMP_Console
 
             return image;
         }
+
+        //Not working
+        public MyImage ToBlackAndWhite2()
+        {
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+
+                    if (imagePixels[i, j].red < 64)
+                    {
+                        imagePixels[i, j].red = 0;
+                        imagePixels[i, j].green = 0;
+                        imagePixels[i, j].blue = 0;
+                    }
+                    else
+                    {
+                        imagePixels[i, j].red = imagePixels[i, j].green = imagePixels[i, j].blue = 255;
+                    }
+                }
+            }
+
+            return this;
+        }
     }
 }
