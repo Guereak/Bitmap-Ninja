@@ -10,8 +10,8 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestGrayScale2();
-            TestBlackAndWhite2();
+            TestGrayScale();
+            TestBlackAndWhite();
             Console.ReadKey();
         }
 
@@ -21,16 +21,7 @@ namespace BMP_Console
 
             MyImage imgGrey = img.ToGrayScale();
 
-            imgGrey.From_Image_To_File("../../SampleImages/lacGreyscale.bmp");
-        }
-
-        static void TestGrayScale2()
-        {
-            MyImage img = new MyImage("../../SampleImages/lac.bmp");
-
-            MyImage imgGrey = img.ToGrayScale2();
-
-            img.From_Image_To_File2("../../SampleImages/lacGreyscale2.bmp");
+            imgGrey.From_Image_To_File("../../OutputImages/lacGreyscale.bmp");
         }
 
         static void TestBlackAndWhite()
@@ -39,16 +30,7 @@ namespace BMP_Console
 
             MyImage NoirEtBlanc = Initial.ToBlackAndWhite();
 
-            NoirEtBlanc.From_Image_To_File("../../SampleImages/lacBlackAndWhite.bmp");
-        }
-
-        static void TestBlackAndWhite2()
-        {
-            MyImage Initial = new MyImage("../../SampleImages/lac.bmp");
-
-            MyImage NoirEtBlanc = Initial.ToBlackAndWhite2();
-
-            NoirEtBlanc.From_Image_To_File("../../SampleImages/lacBlackAndWhite2.bmp");
+            NoirEtBlanc.From_Image_To_File("../../OutputImages/lacBlackAndWhite.bmp");
         }
     }
 }

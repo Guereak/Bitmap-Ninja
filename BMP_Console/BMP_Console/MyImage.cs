@@ -10,17 +10,16 @@ namespace BMP_Console
         byte[] headerBytes;
         byte[] headerInfoBytes;
 
-        //Make it into a matrix
-        byte[] imageBytes;
         Pixel[,] imagePixels;
 
+        //The following are handeled by PopulateHeadersProperties method
         int height;
         int width;
-        int imgOffset;
         int bitsPerPixel;
         int bytesPerLine;
-
         string imageType;
+
+        int imgOffset;
 
         #endregion properties
 
@@ -53,27 +52,21 @@ namespace BMP_Console
             for (int i = 14; i < 14 + DIMSize; i++)
                 headerInfoBytes[i - 14] = fileBytes[i];
 
-            //Populate other properties
-            width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
-            height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
-            bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
-            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
+            PopulateHeaderProperties(headerBytes, headerInfoBytes);
 
-            //Populate imageBytes
-            imageBytes = new byte[fileBytes.Length - imgOffset];
-            //
-            for (int i = imgOffset; i < fileBytes.Length; i++)
-                imageBytes[i - imgOffset] = fileBytes[i];
+            imagePixels = new Pixel[width, height];
+            //Populate pixels
+            imagePixels = new Pixel[width, height];
 
-            PopulatePixels();
-        }
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    Pixel p = new Pixel(fileBytes[j * 3 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 1 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 2 + i * bytesPerLine + imgOffset]);
 
-        //Discarded
-        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
-        {
-            this.headerBytes = headerBytes;
-            this.headerInfoBytes = headerInfoBytes;
-            this.imageBytes = imageBytes;
+                    imagePixels[j, i] = p;
+                }
+            }
         }
 
         public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
@@ -81,26 +74,22 @@ namespace BMP_Console
             this.headerBytes = headerBytes;
             this.headerInfoBytes = headerInfoBytes;
             this.imagePixels = pixels;
+
+            PopulateHeaderProperties(headerBytes, headerInfoBytes);
         }
 
         #endregion constructors
 
-        public void PopulatePixels()
+
+        //Called after constructors 
+        void PopulateHeaderProperties(byte[] headerBytes, byte[] headerInfoBytes)
         {
-            imagePixels = new Pixel[width, height];
-
-            for(int i = 0; i < height; i++)
-            {
-                for(int j = 0; j < width; j++)
-                {
-                    Pixel p = new Pixel(imageBytes[j * 3 + i * bytesPerLine], imageBytes[j  * 3+ 1 + i * bytesPerLine], imageBytes[j * 3 + 2 + i * bytesPerLine]);
-
-                    //Console.WriteLine($"r: {p.red}, g: {p.green}, b: {p.blue}");
-
-                    imagePixels[j, i] = p;
-                }
-            }
+            width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
+            height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+            bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
+
 
         public static int Convertir_Endian_To_Int(byte[] bytes)
         {
@@ -113,6 +102,7 @@ namespace BMP_Console
 
             return value;
         }
+
 
         //Reminder change this
         static byte[] Convertir_Int_To_Endian(int val)
@@ -156,13 +146,8 @@ namespace BMP_Console
             return rep;
         }
 
-        public void From_Image_To_File(string path)
-        {
-            //Rewrite without System.Linq
-            File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(imageBytes).ToArray());
-        }
 
-        public void From_Image_To_File2(string path)
+        public void From_Image_To_File(string path)
         {
             //Convert pixel matrix to bytes with padding
             byte[] newImageBytes = new byte[bytesPerLine * height];
@@ -181,7 +166,8 @@ namespace BMP_Console
             File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(newImageBytes).ToArray());
         }
 
-        public MyImage ToGrayScale2()
+
+        public MyImage ToGrayScale()
         {
             for(int i = 0; i < width; i++)
             {
@@ -200,74 +186,31 @@ namespace BMP_Console
         }
 
 
-        public MyImage ToGrayScale()
-        {
-            byte[] newImageBytes = new byte[imageBytes.Length];
-
-            for (int i = 0; i < height; i++)
-            {
-                int j = 0;
-                while (j + 2 <= bytesPerLine)
-                {
-                    int r = imageBytes[i * bytesPerLine + j];
-                    int g = imageBytes[i * bytesPerLine + j + 1];
-                    int b = imageBytes[i * bytesPerLine + j + 2];
-
-                    int grey = Convert.ToInt32(0.299 * r + 0.587 * g + 0.114 * b);
-
-                    newImageBytes[i * bytesPerLine + j] = Convert.ToByte(grey);
-                    newImageBytes[i * bytesPerLine + j + 1] = Convert.ToByte(grey);
-                    newImageBytes[i * bytesPerLine + j + 2] = Convert.ToByte(grey);
-
-                    j += 3;
-                }
-            }
-            return new MyImage(headerBytes, headerInfoBytes, newImageBytes);
-        }
-
         public MyImage ToBlackAndWhite()
         {
-
-            MyImage image = ToGrayScale();
-
-            for(int i = 0; i < image.imageBytes.Length; i++)
+            MyImage im = new MyImage(headerBytes, headerInfoBytes, imagePixels);
+            
+            for (int i = 0; i < im.width; i++)
             {
-                if (image.imageBytes[i] >= 64)      //Adapt treshold
-                {
-                    image.imageBytes[i] = 255;
-                }
-                else
-                {
-                    image.imageBytes[i] = 0;
-                }
-            }
-
-            return image;
-        }
-
-        //Not working
-        public MyImage ToBlackAndWhite2()
-        {
-
-            for (int i = 0; i < width; i++)
-            {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < im.height; j++)
                 {
 
-                    if (imagePixels[i, j].red < 64)
+                    if (im.imagePixels[i, j].red < 64)
                     {
-                        imagePixels[i, j].red = 0;
-                        imagePixels[i, j].green = 0;
-                        imagePixels[i, j].blue = 0;
+                        im.imagePixels[i, j].red = 0;
+                        im.imagePixels[i, j].green = 0;
+                        im.imagePixels[i, j].blue = 0;
                     }
                     else
                     {
-                        imagePixels[i, j].red = imagePixels[i, j].green = imagePixels[i, j].blue = 255;
+                        im.imagePixels[i, j].red = 255;
+                        im.imagePixels[i, j].green = 255;
+                        im.imagePixels[i, j].blue = 255;
                     }
                 }
             }
 
-            return this;
+            return im;
         }
     }
 }
