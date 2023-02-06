@@ -23,6 +23,24 @@ namespace BMP_Console
 
         #endregion properties
 
+        #region access_control
+        public Pixel[,] ImagePixels
+        {
+            get { return imagePixels; }
+        }
+
+        public int Width
+        {
+            get { return width; }
+        }
+
+        public int Height
+        {
+            get { return height; }
+        }
+
+        #endregion access_control
+
         #region constructors
         public MyImage(string path)
         {
@@ -89,6 +107,27 @@ namespace BMP_Console
             bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
+
+        byte[] BuildHeaderInfoBytes(int newWidth, int newHeight)
+        {
+            byte[] newHeaderInfo = new byte[40];
+
+            byte[] widthByte = Convertir_Int_To_Endian(newWidth);
+            byte[] heightByte = Convertir_Int_To_Endian(newHeight);
+
+            newHeaderInfo[4] = widthByte[0];
+            newHeaderInfo[5] = widthByte[1];
+            newHeaderInfo[6] = widthByte[2];
+            newHeaderInfo[7] = widthByte[3];
+
+            newHeaderInfo[8] = heightByte[0];
+            newHeaderInfo[9] = heightByte[1];
+            newHeaderInfo[10] = heightByte[2];
+            newHeaderInfo[11] = heightByte[3];
+
+            return newHeaderInfo;
+        }
+
 
 
         public static int Convertir_Endian_To_Int(byte[] bytes)
@@ -212,5 +251,74 @@ namespace BMP_Console
 
             return im;
         }
+
+
+        public MyImage RescaleByFactor(double xFactor, double yFactor)
+        {
+            int newWidth = (int)(width * xFactor); 
+            int newHeight = (int)(height * yFactor);
+
+            return RescaleByWidth(newWidth, newHeight);
+        }
+
+
+        public MyImage RescaleByWidth(int newWidth, int newHeight)
+        {
+            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+
+            Console.WriteLine(newWidth);
+            Console.WriteLine(newHeight);
+
+            //Only works if < 1
+            int xPixelIndex = width / (newWidth - width);
+            int yPixelIndex = width / (newHeight - height);
+
+
+            int yIndex = 0;
+            int yAddedPixels = 0;
+
+            for (int i = 0; i < newHeight; i++)
+            {
+                int xIndex = 0;
+                int xAddedPixels = 0;
+
+                for (int j = 0; j < newWidth; j++)
+                {
+                    xIndex++;
+
+                    if(xIndex > xPixelIndex)
+                    {
+                        xIndex = 0;
+                        xAddedPixels++;
+                    }
+                    else
+                    {
+                        //Console.WriteLine(j - xAddedPixels);
+                        Console.WriteLine(i - yAddedPixels);
+                        //newPixels[j, i] = ImagePixels[j - xAddedPixels, i - yAddedPixels];
+                    }
+                    
+                }
+            }
+
+            return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
+        }
+
+        public MyImage Rotate(double rotationAngle) // Angle in degree
+        {
+            double rotationAngleRadian = (2 * Math.PI / 360); // Converting the angle in radiant.
+            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian));
+            int newHeight = (int)(this.height * Math.Cos(rotationAngleRadian) - this.width * Math.Sin(rotationAngleRadian));
+            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+
+            Pixel origin = ImagePixels[0, 0];
+            //Pixel rightOrigin = ImagePixels[0, Get.];
+
+
+            return new MyImage(headerBytes, headerInfoBytes, newPixels);
+
+        }
+
+
     }
 }

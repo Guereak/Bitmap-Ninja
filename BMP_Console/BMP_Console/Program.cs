@@ -12,6 +12,8 @@ namespace BMP_Console
         {
             TestGrayScale();
             TestBlackAndWhite();
+            TestRescaleByFactor();
+            Console.WriteLine("Done");
             Console.ReadKey();
         }
 
@@ -26,11 +28,19 @@ namespace BMP_Console
 
         static void TestBlackAndWhite()
         {
-            MyImage Initial = new MyImage("../../SampleImages/lac.bmp");
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            MyImage NoirEtBlanc = Initial.ToBlackAndWhite();
+            MyImage imgBW = img.ToBlackAndWhite();
 
-            NoirEtBlanc.From_Image_To_File("../../OutputImages/lacBlackAndWhite.bmp");
+            imgBW.From_Image_To_File("../../OutputImages/lacBlackAndWhite.bmp");
+        }
+        static void TestRescaleByFactor()
+        {
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+
+            MyImage imgRescaled = img.RescaleByFactor(1.2, 1.2);
+
+            imgRescaled.From_Image_To_File("../../OutputImages/lacRescaled.bmp");
         }
     }
 }
