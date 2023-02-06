@@ -89,6 +89,7 @@ namespace BMP_Console
         public byte[] Convertir_Int_To_Endian(int val)      //TODO
         {
             throw new NotImplementedException();
+
         }
 
         public void From_Image_To_File(string path)
