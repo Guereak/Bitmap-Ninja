@@ -294,7 +294,7 @@ namespace BMP_Console
                     else
                     {
                         //Console.WriteLine(j - xAddedPixels);
-                        Console.WriteLine(i - yAddedPixels);
+                        //Console.WriteLine(i - yAddedPixels);
                         //newPixels[j, i] = ImagePixels[j - xAddedPixels, i - yAddedPixels];
                     }
                     

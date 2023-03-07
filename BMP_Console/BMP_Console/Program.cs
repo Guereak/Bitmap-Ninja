@@ -12,7 +12,7 @@ namespace BMP_Console
         {
             TestGrayScale();
             TestBlackAndWhite();
-            TestRescaleByFactor();
+            //TestRescaleByFactor();
             Console.WriteLine("Done");
             Console.ReadKey();
         }
