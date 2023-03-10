@@ -7,19 +7,30 @@ namespace BMP_Console
     class MyImage
     {
         #region properties
-        byte[] headerBytes;
-        byte[] headerInfoBytes;
-
         Pixel[,] imagePixels;
 
-        //The following are handeled by PopulateHeadersProperties method
-        int height;
-        int width;
-        int bitsPerPixel;
-        int bytesPerLine;
+        //Header properties
         string imageType;
-
+        int fileSize;
+        byte[] reservedBytes;
         int imgOffset;
+
+        //DIM Header properties
+        int DIMsize;
+        int width;
+        int height;
+        int numberOfPlans;
+        int bitsPerPixel;
+        int compressionType;
+        int imageSize;
+        int horizontalResolution;
+        int verticalResolution;
+        int colorsInPalette;
+        int importantColor;
+
+        //The following are handeled by PopulateHeadersProperties method
+        int bytesPerLine;
+
 
         #endregion properties
 
@@ -46,7 +57,7 @@ namespace BMP_Console
         {
             byte[] fileBytes = File.ReadAllBytes(path);
 
-            headerBytes = new byte[14];
+            byte[] headerBytes = new byte[14];
 
             //Populate headerBytes
             for (int i = 0; i < 14; i++)
@@ -64,7 +75,7 @@ namespace BMP_Console
             //Read the size of the DIM Header
             int DIMSize = Convertir_Endian_To_Int(new byte[] { fileBytes[14], fileBytes[15], fileBytes[16], fileBytes[17] });
 
-            headerInfoBytes = new byte[DIMSize];
+            byte[] headerInfoBytes = new byte[DIMSize];
 
             //Populate headerInfoBytes
             for (int i = 14; i < 14 + DIMSize; i++)
@@ -89,8 +100,6 @@ namespace BMP_Console
 
         public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
         {
-            this.headerBytes = headerBytes;
-            this.headerInfoBytes = headerInfoBytes;
             this.imagePixels = pixels;
 
             PopulateHeaderProperties(headerBytes, headerInfoBytes);
@@ -102,30 +111,54 @@ namespace BMP_Console
         //Called after constructors 
         void PopulateHeaderProperties(byte[] headerBytes, byte[] headerInfoBytes)
         {
+            //Header properties
+            imageType = (char)headerBytes[0] + "" + (char)headerBytes[1];
+            fileSize = Convertir_Endian_To_Int(new byte[] { headerBytes[2], headerBytes[3], headerBytes[4], headerBytes[5] });
+            reservedBytes = new byte[] { headerBytes[6], headerBytes[7], headerBytes[8], headerBytes[9] };
+
+            //DIM Header properties
             width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
             height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+
+            numberOfPlans = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[12], headerInfoBytes[13] });
             bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+
+            compressionType = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[16], headerInfoBytes[17], headerInfoBytes[18], headerInfoBytes[19] });
+            imageSize = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[20], headerInfoBytes[21], headerInfoBytes[22], headerInfoBytes[23] });
+            horizontalResolution = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[24], headerInfoBytes[25], headerInfoBytes[26], headerInfoBytes[27] });
+            verticalResolution = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[28], headerInfoBytes[29], headerInfoBytes[30], headerInfoBytes[31] });
+            colorsInPalette = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[32], headerInfoBytes[33], headerInfoBytes[34], headerInfoBytes[35] });
+            importantColor = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[36], headerInfoBytes[37], headerInfoBytes[38], headerInfoBytes[39] });
+
+
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
 
-        byte[] BuildHeaderInfoBytes(int newWidth, int newHeight)
+        byte[] BuildHeader(int fileSize)
         {
-            byte[] newHeaderInfo = new byte[40];
+            byte[] imageTypeBytes = new byte[] { (byte)imageType[0], (byte)imageType[1] };
+            byte[] fileSizeBytes = Convertir_Int_To_Endian(fileSize, 4);
+            byte[] offsetBytes = Convertir_Int_To_Endian(imgOffset, 4);
 
-            byte[] widthByte = Convertir_Int_To_Endian(newWidth);
-            byte[] heightByte = Convertir_Int_To_Endian(newHeight);
+            return imageTypeBytes.Concat(fileSizeBytes).Concat(reservedBytes).Concat(offsetBytes).ToArray();
+        }
 
-            newHeaderInfo[4] = widthByte[0];
-            newHeaderInfo[5] = widthByte[1];
-            newHeaderInfo[6] = widthByte[2];
-            newHeaderInfo[7] = widthByte[3];
+        byte[] BuildHeaderInfo(int width, int height, int imageSize)
+        {
+            byte[] sizeBytes = Convertir_Int_To_Endian(40, 4);
+            byte[] widthBytes = Convertir_Int_To_Endian(width, 4);
+            byte[] heightBytes = Convertir_Int_To_Endian(height, 4);
+            byte[] plansBytes = Convertir_Int_To_Endian(numberOfPlans, 2);
+            byte[] pixelBytes = Convertir_Int_To_Endian(bitsPerPixel, 2);
+            byte[] compressionBytes = Convertir_Int_To_Endian(compressionType, 4);
+            byte[] imageSizeBytes = Convertir_Int_To_Endian(imageSize, 4);
+            byte[] horizontalResolutionBytes = Convertir_Int_To_Endian(horizontalResolution, 4);
+            byte[] verticalResolutionBytes = Convertir_Int_To_Endian(verticalResolution, 4);
+            byte[] colorPaletteBytes = Convertir_Int_To_Endian(colorsInPalette, 4);
+            byte[] importantColorBytes = Convertir_Int_To_Endian(importantColor, 4);
 
-            newHeaderInfo[8] = heightByte[0];
-            newHeaderInfo[9] = heightByte[1];
-            newHeaderInfo[10] = heightByte[2];
-            newHeaderInfo[11] = heightByte[3];
-
-            return newHeaderInfo;
+            return sizeBytes.Concat(widthBytes).Concat(heightBytes).Concat(plansBytes).Concat(pixelBytes).Concat(compressionBytes).Concat(imageSizeBytes)
+                .Concat(horizontalResolutionBytes).Concat(verticalResolutionBytes).Concat(colorPaletteBytes).Concat(importantColorBytes).ToArray();
         }
 
 
@@ -142,49 +175,20 @@ namespace BMP_Console
             return value;
         }
 
-
-        //Reminder change this
-        static byte[] Convertir_Int_To_Endian(int val)
+        static byte[] Convertir_Int_To_Endian(int value, int size)
         {
-            byte[] rep = null;
-            if (val >= 0)
+            byte[] rep = new byte[size];
+            size -= 1;
+
+            while(size >= 0)
             {
-                rep = new byte[4];
+                int calc = value / (int)Math.Pow(256, size);
+                rep[size] = (byte)calc;
 
-                if (val < 256)
-                {
-                    rep[0] = Convert.ToByte(val);
-                    rep[1] = 0;
-                    rep[2] = 0;
-                    rep[3] = 0;
-                }
-                else
-                {
-                    rep[3] = Convert.ToByte(val / (256 * 256 * 256));
-                    if (val >= 256 * 256 * 256)
-                    {
-                        int j = val / (256 * 256 * 256);
-                        val -= j * 256 * 256 * 256;
-                    }
-                    rep[2] = Convert.ToByte(val / (256 * 256));
-                    if (val >= 256 * 256)
-                    {
-                        int j = val / (256 * 256);
-                        val -= j * 256 * 256;
-                    }
-                    rep[1] = Convert.ToByte(val / 256);
-                    if (val >= 256)
-                    {
-                        int j = val / (256);
-                        val -= j * 256;
-                    }
-                    rep[0] = Convert.ToByte(val);
-
-                }
+                size -= 1;
             }
             return rep;
         }
-
 
         public void From_Image_To_File(string path)
         {
@@ -200,9 +204,8 @@ namespace BMP_Console
                     newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
                 }
             }
-
-            //Rewrite without System.Linq
-            File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(newImageBytes).ToArray());
+            File.WriteAllBytes(path, BuildHeader(fileSize)
+                .Concat(BuildHeaderInfo(width, height, imageSize)).Concat(newImageBytes).ToArray());
         }
 
 
@@ -221,13 +224,13 @@ namespace BMP_Console
                 }
             }
 
-            return new MyImage(headerBytes, headerInfoBytes, imagePixels);
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
         }
 
 
         public MyImage ToBlackAndWhite()
         {
-            MyImage im = new MyImage(headerBytes, headerInfoBytes, imagePixels);
+            MyImage im = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
             
             for (int i = 0; i < im.width; i++)
             {
@@ -301,7 +304,8 @@ namespace BMP_Console
                 }
             }
 
-            return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
+            //return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
+            return null;
         }
 
         public MyImage Rotate(double rotationAngle) // Angle in degree
@@ -315,8 +319,8 @@ namespace BMP_Console
             //Pixel rightOrigin = ImagePixels[0, Get.];
 
 
-            return new MyImage(headerBytes, headerInfoBytes, newPixels);
-
+            //return new MyImage(headerBytes, headerInfoBytes, newPixels);
+            return null;
         }
 
 
