@@ -108,7 +108,7 @@ namespace BMP_Console
         #endregion constructors
 
 
-        //Called after constructors 
+        #region sync
         void PopulateHeaderProperties(byte[] headerBytes, byte[] headerInfoBytes)
         {
             //Header properties
@@ -161,6 +161,7 @@ namespace BMP_Console
                 .Concat(horizontalResolutionBytes).Concat(verticalResolutionBytes).Concat(colorPaletteBytes).Concat(importantColorBytes).ToArray();
         }
 
+        #endregion sync
 
 
         public static int Convertir_Endian_To_Int(byte[] bytes)
@@ -199,9 +200,16 @@ namespace BMP_Console
             {
                 for(int j = 0; j < width; j++)
                 {
-                    newImageBytes[i * bytesPerLine + j * 3 ] = imagePixels[j, i].red;
-                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
-                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
+                    try
+                    {
+                        newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                        newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                        newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(i * bytesPerLine + j * 3);
+                    }
                 }
             }
             File.WriteAllBytes(path, BuildHeader(fileSize)
@@ -264,49 +272,57 @@ namespace BMP_Console
             return RescaleByWidth(newWidth, newHeight);
         }
 
-
         public MyImage RescaleByWidth(int newWidth, int newHeight)
         {
             Pixel[,] newPixels = new Pixel[newWidth, newHeight];
 
+            // Only works if < 1
+            // Determines how many original pixels to keep before adding a new one
+            int xPixelIndex = width / (newWidth - width);
+            int yPixelIndex = height / (newHeight - height);
+            
+            
             Console.WriteLine(newWidth);
             Console.WriteLine(newHeight);
 
-            //Only works if < 1
-            int xPixelIndex = width / (newWidth - width);
-            int yPixelIndex = width / (newHeight - height);
-
-
-            int yIndex = 0;
             int yAddedPixels = 0;
-
             for (int i = 0; i < newHeight; i++)
             {
-                int xIndex = 0;
                 int xAddedPixels = 0;
-
-                for (int j = 0; j < newWidth; j++)
+                if(i % yPixelIndex != 0)
                 {
-                    xIndex++;
-
-                    if(xIndex > xPixelIndex)
+                    for (int j = 0; j < newWidth; j++)
                     {
-                        xIndex = 0;
-                        xAddedPixels++;
+                        if (j % xPixelIndex != 0)
+                        {
+                            newPixels[j, i] = new Pixel(0, 0, 0);
+                            newPixels[j, i].blue = imagePixels[j - xAddedPixels, i - yAddedPixels].blue;
+                            newPixels[j, i].red = imagePixels[j - xAddedPixels, i - yAddedPixels].red;
+                            newPixels[j, i].green = imagePixels[j - xAddedPixels, i - yAddedPixels].green;
+                            //Console.WriteLine(j + " " + i);
+                        }
+                        else
+                        {
+                            xAddedPixels++;
+                            newPixels[j, i] = new Pixel(0, 0, 0);
+                        }
                     }
-                    else
-                    {
-                        //Console.WriteLine(j - xAddedPixels);
-                        //Console.WriteLine(i - yAddedPixels);
-                        //newPixels[j, i] = ImagePixels[j - xAddedPixels, i - yAddedPixels];
-                    }
-                    
                 }
+                else
+                {
+                    yAddedPixels++;
+                    for (int j = 0; j < newWidth; j++)
+                    {
+                        newPixels[j, i] = new Pixel(0, 0, 0);
+                    }
+                }
+
             }
 
-            //return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
-            return null;
+            Console.WriteLine(yAddedPixels);
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(newWidth, newHeight, 0), newPixels);
         }
+
 
         public MyImage Rotate(double rotationAngle) // Angle in degree
         {
@@ -317,7 +333,6 @@ namespace BMP_Console
 
             Pixel origin = ImagePixels[0, 0];
             //Pixel rightOrigin = ImagePixels[0, Get.];
-
 
             //return new MyImage(headerBytes, headerInfoBytes, newPixels);
             return null;
