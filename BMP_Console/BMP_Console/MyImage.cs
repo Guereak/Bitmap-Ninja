@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BMP_Console
 {
-    class MyImage
+    partial class MyImage
     {
         #region properties
         Pixel[,] imagePixels;
@@ -263,63 +263,24 @@ namespace BMP_Console
             return im;
         }
 
-
         public MyImage RescaleByFactor(double xFactor, double yFactor)
         {
-            int newWidth = (int)(width * xFactor); 
+            int newWidth = (int)(width * xFactor);
             int newHeight = (int)(height * yFactor);
 
-            return RescaleByWidth(newWidth, newHeight);
-        }
-
-        public MyImage RescaleByWidth(int newWidth, int newHeight)
-        {
             Pixel[,] newPixels = new Pixel[newWidth, newHeight];
 
-            // Only works if < 1
-            // Determines how many original pixels to keep before adding a new one
-            int xPixelIndex = width / (newWidth - width);
-            int yPixelIndex = height / (newHeight - height);
-            
-            
-            Console.WriteLine(newWidth);
-            Console.WriteLine(newHeight);
-
-            int yAddedPixels = 0;
             for (int i = 0; i < newHeight; i++)
             {
-                int xAddedPixels = 0;
-                if(i % yPixelIndex != 0)
+                for (int j = 0; j < newWidth; j++)
                 {
-                    for (int j = 0; j < newWidth; j++)
-                    {
-                        if (j % xPixelIndex != 0)
-                        {
-                            newPixels[j, i] = new Pixel(0, 0, 0);
-                            newPixels[j, i].blue = imagePixels[j - xAddedPixels, i - yAddedPixels].blue;
-                            newPixels[j, i].red = imagePixels[j - xAddedPixels, i - yAddedPixels].red;
-                            newPixels[j, i].green = imagePixels[j - xAddedPixels, i - yAddedPixels].green;
-                            //Console.WriteLine(j + " " + i);
-                        }
-                        else
-                        {
-                            xAddedPixels++;
-                            newPixels[j, i] = new Pixel(0, 0, 0);
-                        }
-                    }
-                }
-                else
-                {
-                    yAddedPixels++;
-                    for (int j = 0; j < newWidth; j++)
-                    {
-                        newPixels[j, i] = new Pixel(0, 0, 0);
-                    }
-                }
+                    int sourceX = (int)(j / xFactor);
+                    int sourceY = (int)(i / yFactor);
 
+                    newPixels[j, i] = imagePixels[sourceX, sourceY];
+                }
             }
 
-            Console.WriteLine(yAddedPixels);
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(newWidth, newHeight, 0), newPixels);
         }
 

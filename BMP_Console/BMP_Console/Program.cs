@@ -38,7 +38,7 @@ namespace BMP_Console
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            MyImage imgRescaled = img.RescaleByFactor(0.9, 1.5);
+            MyImage imgRescaled = img.RescaleByFactor(0.5, 3);
 
             Console.WriteLine(imgRescaled.Height);
             Console.WriteLine(imgRescaled.Width);
