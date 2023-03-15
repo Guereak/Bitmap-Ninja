@@ -13,6 +13,7 @@ namespace BMP_Console
             TestGrayScale();
             TestBlackAndWhite();
             TestRescaleByFactor();
+            TestMirror();
             TestBlankImage();
             Console.WriteLine("Done");
             Console.ReadKey();
@@ -54,6 +55,17 @@ namespace BMP_Console
 
             img1.From_Image_To_File("../../OutputImages/blank1.bmp");
             img2.From_Image_To_File("../../OutputImages/blank2.bmp");
+        }
+
+        static void TestMirror()
+        {
+            MyImage img1 = new MyImage("../../SampleImages/lac.bmp");
+            MyImage img2 = new MyImage("../../SampleImages/lac.bmp");
+            img1.Mirror_Vertical();
+            img2.Mirror_Horizontal();
+
+            img1.From_Image_To_File("../../OutputImages/lacMirroredVertical.bmp");
+            img2.From_Image_To_File("../../OutputImages/lacMirroredHorizontal.bmp");
         }
     }
 }

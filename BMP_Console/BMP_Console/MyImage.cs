@@ -336,6 +336,30 @@ namespace BMP_Console
             return null;
         }
 
+        public void Mirror_Horizontal()
+        {
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width / 2; j++)
+                {
+                    Pixel p = imagePixels[j, i];
+                    imagePixels[j, i] = imagePixels[width - j - 1, i];
+                    imagePixels[width - j - 1, i] = p;
+                }
+            }
+        }
 
+        public void Mirror_Vertical()
+        {
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height / 2; j++)
+                {
+                    Pixel p = imagePixels[i, j];
+                    imagePixels[i, j] = imagePixels[i, height - j - 1];
+                    imagePixels[i, height - j - 1] = p;
+                }
+            }
+        }
     }
 }
