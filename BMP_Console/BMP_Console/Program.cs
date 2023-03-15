@@ -13,6 +13,7 @@ namespace BMP_Console
             TestGrayScale();
             TestBlackAndWhite();
             TestRescaleByFactor();
+            TestBlankImage();
             Console.WriteLine("Done");
             Console.ReadKey();
         }
@@ -38,12 +39,21 @@ namespace BMP_Console
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            MyImage imgRescaled = img.RescaleByFactor(0.5, 3);
+            MyImage imgRescaled = img.RescaleByFactor(0.1, 0.1);
 
             Console.WriteLine(imgRescaled.Height);
             Console.WriteLine(imgRescaled.Width);
 
             imgRescaled.From_Image_To_File("../../OutputImages/lacRescaled.bmp");
+        }
+
+        static void TestBlankImage()
+        {
+            MyImage img1 = new MyImage(1500, 1300);
+            MyImage img2 = new MyImage();
+
+            img1.From_Image_To_File("../../OutputImages/blank1.bmp");
+            img2.From_Image_To_File("../../OutputImages/blank2.bmp");
         }
     }
 }

@@ -11,22 +11,22 @@ namespace BMP_Console
 
         //Header properties
         string imageType;
-        int fileSize;
-        byte[] reservedBytes;
-        int imgOffset;
+        int fileSize = 0;
+        byte[] reservedBytes = new byte[4];
+        int imgOffset = 54;
 
         //DIM Header properties
-        int DIMsize;
+        int DIMsize = 40;
         int width;
         int height;
-        int numberOfPlans;
-        int bitsPerPixel;
-        int compressionType;
-        int imageSize;
-        int horizontalResolution;
-        int verticalResolution;
-        int colorsInPalette;
-        int importantColor;
+        int numberOfPlans = 1;
+        int bitsPerPixel = 24;
+        int compressionType = 0;
+        int imageSize = 0;
+        int horizontalResolution = 0;
+        int verticalResolution = 0;
+        int colorsInPalette = 0;
+        int importantColor = 0;
 
         //The following are handeled by PopulateHeadersProperties method
         int bytesPerLine;
@@ -105,6 +105,43 @@ namespace BMP_Console
             PopulateHeaderProperties(headerBytes, headerInfoBytes);
         }
 
+        //Used to generate a blank image
+        public MyImage(int width, int height)
+        {
+            imagePixels = new Pixel[width, height];
+
+            imageType = "BM";
+            this.width = width;
+            this.height = height;
+            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
+
+            for (int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                }
+            }
+        }
+
+        //Used to generate a blank image of 2000x2000, for fractals
+        public MyImage()
+        {
+            imageType = "BM";
+            width = 2000;
+            height = 2000;
+            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
+
+            imagePixels = new Pixel[width, height];
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                }
+            }
+        }
         #endregion constructors
 
 
