@@ -7,7 +7,7 @@ namespace BMP_Console
     partial class MyImage
     {
         #region properties
-        Pixel[,] imagePixels;
+        protected Pixel[,] imagePixels;
 
         //Header properties
         string imageType;
@@ -43,11 +43,13 @@ namespace BMP_Console
         public int Width
         {
             get { return width; }
+            set { width = value; }
         }
 
         public int Height
         {
             get { return height; }
+            set { height = value; }
         }
 
         #endregion access_control
@@ -128,8 +130,8 @@ namespace BMP_Console
         public MyImage()
         {
             imageType = "BM";
-            width = 2000;
-            height = 2000;
+            width = 4000;
+            height = 4000;
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
             imagePixels = new Pixel[width, height];

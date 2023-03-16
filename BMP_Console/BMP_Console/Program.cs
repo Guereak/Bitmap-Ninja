@@ -10,11 +10,12 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestGrayScale();
-            TestBlackAndWhite();
-            TestRescaleByFactor();
-            TestMirror();
-            TestBlankImage();
+            TestFractal();
+            //TestGrayScale();
+            //TestBlackAndWhite();
+            //TestRescaleByFactor();
+            //TestMirror();
+            //TestBlankImage();
             Console.WriteLine("Done");
             Console.ReadKey();
         }
@@ -66,6 +67,16 @@ namespace BMP_Console
 
             img1.From_Image_To_File("../../OutputImages/lacMirroredVertical.bmp");
             img2.From_Image_To_File("../../OutputImages/lacMirroredHorizontal.bmp");
+        }
+
+        static void TestFractal()
+        {
+            //Used to time performance of the method
+            
+            FractalImage fractal = new FractalImage(4000, 4000);
+            fractal.Mandelbrot();
+
+            fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
     }
 }
