@@ -22,19 +22,7 @@ namespace BMP_App_WPF
     {
         public MainWindow()
         {
-            InitializeComponent();
-
-            //DisplayImageGrid();    
-        }
-
-        private void Greyscale_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BlackAndWhite_Click(object sender, RoutedEventArgs e)
-        {
-
+            InitializeComponent();    
         }
     }
 }
