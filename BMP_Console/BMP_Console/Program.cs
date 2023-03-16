@@ -41,32 +41,29 @@ namespace BMP_Console
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            MyImage imgRescaled = img.RescaleByFactor(0.1, 0.1);
-
-            Console.WriteLine(imgRescaled.Height);
-            Console.WriteLine(imgRescaled.Width);
+            MyImage imgRescaled = img.RescaleByFactor(1.2, 1.2);
 
             imgRescaled.From_Image_To_File("../../OutputImages/lacRescaled.bmp");
         }
 
-        static void TestBlankImage()
+        static void TestRotateByFactor()
         {
-            MyImage img1 = new MyImage(1500, 1300);
-            MyImage img2 = new MyImage();
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+            MyImage imgRotated = img.Rotate(90);
+            imgRotated.From_Image_To_File("../../OutputImages/lacRescaled.bmp");
 
-            img1.From_Image_To_File("../../OutputImages/blank1.bmp");
-            img2.From_Image_To_File("../../OutputImages/blank2.bmp");
+
         }
 
-        static void TestMirror()
+        static void TestMatConv()
         {
-            MyImage img1 = new MyImage("../../SampleImages/lac.bmp");
-            MyImage img2 = new MyImage("../../SampleImages/lac.bmp");
-            img1.Mirror_Vertical();
-            img2.Mirror_Horizontal();
 
-            img1.From_Image_To_File("../../OutputImages/lacMirroredVertical.bmp");
-            img2.From_Image_To_File("../../OutputImages/lacMirroredHorizontal.bmp");
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+            MyImage imgConv = img.Conv();
+            imgConv.From_Image_To_File("../../OutputImages/lacRescaled.bmp");
+
+
+
         }
 
         static void TestFractal()
