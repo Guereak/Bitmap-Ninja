@@ -4,21 +4,33 @@ using System.Linq;
 
 namespace BMP_Console
 {
-    class MyImage
+    partial class MyImage
     {
         #region properties
-
         protected Pixel[,] imagePixels;
 
+        //Header properties
+        string imageType;
+        int fileSize = 0;
+        byte[] reservedBytes = new byte[4];
+        int imgOffset = 54;
+
+        //DIM Header properties
+        int DIMsize = 40;
+        int width;
+        int height;
+        int numberOfPlans = 1;
+        int bitsPerPixel = 24;
+        int compressionType = 0;
+        int imageSize = 0;
+        int horizontalResolution = 0;
+        int verticalResolution = 0;
+        int colorsInPalette = 0;
+        int importantColor = 0;
 
         //The following are handeled by PopulateHeadersProperties method
-        int height;
-        int width;
-        int bitsPerPixel;
         int bytesPerLine;
-        string imageType;
 
-        int imgOffset;
 
         #endregion properties
 
@@ -47,7 +59,7 @@ namespace BMP_Console
         {
             byte[] fileBytes = File.ReadAllBytes(path);
 
-            headerBytes = new byte[14];
+            byte[] headerBytes = new byte[14];
 
             //Populate headerBytes
             for (int i = 0; i < 14; i++)
@@ -65,7 +77,7 @@ namespace BMP_Console
             //Read the size of the DIM Header
             int DIMSize = Convertir_Endian_To_Int(new byte[] { fileBytes[14], fileBytes[15], fileBytes[16], fileBytes[17] });
 
-            headerInfoBytes = new byte[DIMSize];
+            byte[] headerInfoBytes = new byte[DIMSize];
 
             //Populate headerInfoBytes
             for (int i = 14; i < 14 + DIMSize; i++)
@@ -90,8 +102,6 @@ namespace BMP_Console
 
         public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
         {
-            this.headerBytes = headerBytes;
-            this.headerInfoBytes = headerInfoBytes;
             this.imagePixels = pixels;
 
             PopulateHeaderProperties(headerBytes, headerInfoBytes);
@@ -134,39 +144,63 @@ namespace BMP_Console
                 }
             }
         }
-
         #endregion constructors
 
 
-        //Called after constructors 
+        #region sync
         void PopulateHeaderProperties(byte[] headerBytes, byte[] headerInfoBytes)
         {
+            //Header properties
+            imageType = (char)headerBytes[0] + "" + (char)headerBytes[1];
+            fileSize = Convertir_Endian_To_Int(new byte[] { headerBytes[2], headerBytes[3], headerBytes[4], headerBytes[5] });
+            reservedBytes = new byte[] { headerBytes[6], headerBytes[7], headerBytes[8], headerBytes[9] };
+
+            //DIM Header properties
             width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
             height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+
+            numberOfPlans = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[12], headerInfoBytes[13] });
             bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+
+            compressionType = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[16], headerInfoBytes[17], headerInfoBytes[18], headerInfoBytes[19] });
+            imageSize = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[20], headerInfoBytes[21], headerInfoBytes[22], headerInfoBytes[23] });
+            horizontalResolution = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[24], headerInfoBytes[25], headerInfoBytes[26], headerInfoBytes[27] });
+            verticalResolution = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[28], headerInfoBytes[29], headerInfoBytes[30], headerInfoBytes[31] });
+            colorsInPalette = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[32], headerInfoBytes[33], headerInfoBytes[34], headerInfoBytes[35] });
+            importantColor = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[36], headerInfoBytes[37], headerInfoBytes[38], headerInfoBytes[39] });
+
+
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
 
-        byte[] BuildHeaderInfoBytes(int newWidth, int newHeight)
+        byte[] BuildHeader(int fileSize)
         {
-            byte[] newHeaderInfo = new byte[40];
+            byte[] imageTypeBytes = new byte[] { (byte)imageType[0], (byte)imageType[1] };
+            byte[] fileSizeBytes = Convertir_Int_To_Endian(fileSize, 4);
+            byte[] offsetBytes = Convertir_Int_To_Endian(imgOffset, 4);
 
-            byte[] widthByte = Convertir_Int_To_Endian(newWidth);
-            byte[] heightByte = Convertir_Int_To_Endian(newHeight);
-
-            newHeaderInfo[4] = widthByte[0];
-            newHeaderInfo[5] = widthByte[1];
-            newHeaderInfo[6] = widthByte[2];
-            newHeaderInfo[7] = widthByte[3];
-
-            newHeaderInfo[8] = heightByte[0];
-            newHeaderInfo[9] = heightByte[1];
-            newHeaderInfo[10] = heightByte[2];
-            newHeaderInfo[11] = heightByte[3];
-
-            return newHeaderInfo;
+            return imageTypeBytes.Concat(fileSizeBytes).Concat(reservedBytes).Concat(offsetBytes).ToArray();
         }
 
+        byte[] BuildHeaderInfo(int width, int height, int imageSize)
+        {
+            byte[] sizeBytes = Convertir_Int_To_Endian(40, 4);
+            byte[] widthBytes = Convertir_Int_To_Endian(width, 4);
+            byte[] heightBytes = Convertir_Int_To_Endian(height, 4);
+            byte[] plansBytes = Convertir_Int_To_Endian(numberOfPlans, 2);
+            byte[] pixelBytes = Convertir_Int_To_Endian(bitsPerPixel, 2);
+            byte[] compressionBytes = Convertir_Int_To_Endian(compressionType, 4);
+            byte[] imageSizeBytes = Convertir_Int_To_Endian(imageSize, 4);
+            byte[] horizontalResolutionBytes = Convertir_Int_To_Endian(horizontalResolution, 4);
+            byte[] verticalResolutionBytes = Convertir_Int_To_Endian(verticalResolution, 4);
+            byte[] colorPaletteBytes = Convertir_Int_To_Endian(colorsInPalette, 4);
+            byte[] importantColorBytes = Convertir_Int_To_Endian(importantColor, 4);
+
+            return sizeBytes.Concat(widthBytes).Concat(heightBytes).Concat(plansBytes).Concat(pixelBytes).Concat(compressionBytes).Concat(imageSizeBytes)
+                .Concat(horizontalResolutionBytes).Concat(verticalResolutionBytes).Concat(colorPaletteBytes).Concat(importantColorBytes).ToArray();
+        }
+
+        #endregion sync
 
 
         public static int Convertir_Endian_To_Int(byte[] bytes)
@@ -181,49 +215,20 @@ namespace BMP_Console
             return value;
         }
 
-
-        //Reminder change this
-        static byte[] Convertir_Int_To_Endian(int val)
+        static byte[] Convertir_Int_To_Endian(int value, int size)
         {
-            byte[] rep = null;
-            if (val >= 0)
+            byte[] rep = new byte[size];
+            size -= 1;
+
+            while(size >= 0)
             {
-                rep = new byte[4];
+                int calc = value / (int)Math.Pow(256, size);
+                rep[size] = (byte)calc;
 
-                if (val < 256)
-                {
-                    rep[0] = Convert.ToByte(val);
-                    rep[1] = 0;
-                    rep[2] = 0;
-                    rep[3] = 0;
-                }
-                else
-                {
-                    rep[3] = Convert.ToByte(val / (256 * 256 * 256));
-                    if (val >= 256 * 256 * 256)
-                    {
-                        int j = val / (256 * 256 * 256);
-                        val -= j * 256 * 256 * 256;
-                    }
-                    rep[2] = Convert.ToByte(val / (256 * 256));
-                    if (val >= 256 * 256)
-                    {
-                        int j = val / (256 * 256);
-                        val -= j * 256 * 256;
-                    }
-                    rep[1] = Convert.ToByte(val / 256);
-                    if (val >= 256)
-                    {
-                        int j = val / (256);
-                        val -= j * 256;
-                    }
-                    rep[0] = Convert.ToByte(val);
-
-                }
+                size -= 1;
             }
             return rep;
         }
-
 
         public void From_Image_To_File(string path)
         {
@@ -234,14 +239,20 @@ namespace BMP_Console
             {
                 for(int j = 0; j < width; j++)
                 {
-                    newImageBytes[i * bytesPerLine + j * 3 ] = imagePixels[j, i].red;
-                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
-                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
+                    try
+                    {
+                        newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                        newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                        newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(i * bytesPerLine + j * 3);
+                    }
                 }
             }
-
-            //Rewrite without System.Linq
-            File.WriteAllBytes(path, headerBytes.Concat(headerInfoBytes).Concat(newImageBytes).ToArray());
+            File.WriteAllBytes(path, BuildHeader(fileSize)
+                .Concat(BuildHeaderInfo(width, height, imageSize)).Concat(newImageBytes).ToArray());
         }
 
 
@@ -260,13 +271,13 @@ namespace BMP_Console
                 }
             }
 
-            return new MyImage(headerBytes, headerInfoBytes, imagePixels);
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
         }
 
 
         public MyImage ToBlackAndWhite()
         {
-            MyImage im = new MyImage(headerBytes, headerInfoBytes, imagePixels);
+            MyImage im = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
             
             for (int i = 0; i < im.width; i++)
             {
@@ -291,195 +302,66 @@ namespace BMP_Console
             return im;
         }
 
-
         public MyImage RescaleByFactor(double xFactor, double yFactor)
         {
-            int newWidth = (int)(width * xFactor); 
+            int newWidth = (int)(width * xFactor);
             int newHeight = (int)(height * yFactor);
 
-            return RescaleByWidth(newWidth, newHeight);
-        }
-
-
-        public MyImage RescaleByWidth(int newWidth, int newHeight)
-        {
             Pixel[,] newPixels = new Pixel[newWidth, newHeight];
-
-            Console.WriteLine(newWidth);
-            Console.WriteLine(newHeight);
-
-            //Only works if < 1
-            int xPixelIndex = width / (newWidth - width);
-            int yPixelIndex = width / (newHeight - height);
-
-
-            int yIndex = 0;
-            int yAddedPixels = 0;
 
             for (int i = 0; i < newHeight; i++)
             {
-                int xIndex = 0;
-                int xAddedPixels = 0;
-
                 for (int j = 0; j < newWidth; j++)
                 {
-                    xIndex++;
+                    int sourceX = (int)(j / xFactor);
+                    int sourceY = (int)(i / yFactor);
 
-                    if(xIndex > xPixelIndex)
-                    {
-                        xIndex = 0;
-                        xAddedPixels++;
-                    }
-                    else
-                    {
-                        //Console.WriteLine(j - xAddedPixels);
-                        Console.WriteLine(i - yAddedPixels);
-                        //newPixels[j, i] = ImagePixels[j - xAddedPixels, i - yAddedPixels];
-                    }
-                    
+                    newPixels[j, i] = imagePixels[sourceX, sourceY];
                 }
             }
 
-            return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(newWidth, newHeight, 0), newPixels);
         }
 
-        public MyImage Rotate(float rotationAngle) // Angle in degree
+
+        public MyImage Rotate(double rotationAngle) // Angle in degree
         {
-            float rotationAngleRadian = (float) (2 * Math.PI * rotationAngle /360); // Converting the angle in radiant.
-            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian)); // New dimensions
+            double rotationAngleRadian = (2 * Math.PI / 360); // Converting the angle in radiant.
+            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian));
             int newHeight = (int)(this.height * Math.Cos(rotationAngleRadian) - this.width * Math.Sin(rotationAngleRadian));
-            Pixel[,] imageRotated = new Pixel[newWidth, newHeight]; // new image rotated
-            float newCos = (float)Math.Cos(rotationAngleRadian);
-            float newSin = (float)Math.Sin(rotationAngleRadian);
-            Pixel origin = ImagePixels[0, 0]; // à remove
-                                              //Pixel rightOrigin = ImagePixels[0, Get.];
+            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
 
-            // R=Right, L=Left, U=Up, D=Down, N=New
+            Pixel origin = ImagePixels[0, 0];
+            //Pixel rightOrigin = ImagePixels[0, Get.];
 
-            Pixel nUL = imagePixels[0, 0];
+            //return new MyImage(headerBytes, headerInfoBytes, newPixels);
+            return null;
+        }
 
-            float Point1x = height * newSin;
-            float Point1y = height * newCos;
-            float Point2x = width * newCos - height * newSin;
-            float Point2y = height * newCos + width * newSin;
-            float Point3x = width * newCos;
-            float Point3y = width * newSin;
+        public void Mirror_Horizontal()
+        {
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width / 2; j++)
+                {
+                    Pixel p = imagePixels[j, i];
+                    imagePixels[j, i] = imagePixels[width - j - 1, i];
+                    imagePixels[width - j - 1, i] = p;
+                }
+            }
+        }
 
-            /*
-            float maxx = Math.Max(0, Math.Max(Point1x, Math.Max(Point2x, Point3x))); //We proceed to determine the maximum coordinates.
-            float maxy = Math.Max(0, Math.Max(Point1y, Math.Max(Point2y, Point3y)));
-            */
-            
-        
-            float minx = Math.Min(0, Math.Min(Point1x, Math.Min(Point2x, Point3x))); // We proceed to determine the minimum coordinates.
-            float miny = Math.Min(0, Math.Min(Point1y, Math.Min(Point2y, Point3y)));
-       
-            
-
-
+        public void Mirror_Vertical()
+        {
             for (int i = 0; i < width; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < height / 2; j++)
                 {
-
-                    int originImageY = (int)((j + miny) * newCos - (i + minx) * newSin);
-
-                    int originImageX = (int)((i + minx) * newCos + (j + miny) * newSin);
-                    
-                    if (originImageX >= 0 && originImageX < newWidth && originImageY >= 0 && originImageY < newHeight)
-                    {
-                        imageRotated[i, j] = imagePixels[originImageX, originImageY];
-                    }
+                    Pixel p = imagePixels[i, j];
+                    imagePixels[i, j] = imagePixels[i, height - j - 1];
+                    imagePixels[i, height - j - 1] = p;
                 }
             }
-
-
-
-            return new MyImage(headerBytes, headerInfoBytes, imageRotated);
-
         }
-
-        public MyImage Conv()
-        {
-            int[,] kernel = new int[,] { { -1, -1, -1 }, { -1, 8, -1 }, { -1, -1, -1 } };
-            int[,] contrast = new int[,] { { 0, 0, 0, 0, 0 }, { 0, 0, -1, 0, 0 }, { 0, -1, 5, -1, 0 }, { 0, 0, -1, 0, 0 }, { 0, 0, 0, 0, 0 } };
-            int[,] blur = new int[,] { { 0, 0, 0, 0, 0 }, { 0, 1, 1, 1, 0 }, { 0, 1, 1, 1, 0 }, { 0, 1, 1, 1, 0 }, { 0, 0, 0, 0, 0 } };
-            int[,] bordReinforcement = new int[,] { { 0, 0, 0 }, { -1, 1, 0 }, { 0, 0, 0 } };
-            int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
-            int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
-
-
-            Console.WriteLine("What are you looking to do ? Choose between blurring, bordReinforcement, pushback and bordDetection by typing the word");
-            string answ = Console.ReadLine();
-            int[,] conv=null;
-
-            if (answ == "blurrring")
-            {
-                conv = blur;
-            }
-            else if (answ == "bordReinforcement")
-            {
-                conv = bordReinforcement;
-            }
-            else if (answ == "bordDetection")
-            {
-                conv = bordDetection;
-            }
-            else if (answ == "pushback")
-            {
-                conv = pushback;
-            }
-
-
-
-            //Définition de la taille de l'image
-            int width = this.width;
-            int height = this.height;
-
-            //Création d'une nouvelle image pour stocker le résultat
-            Pixel [,] imageModified = new Pixel [width,height];
-
-            //Boucle à travers chaque pixel de l'image
-            for (int x = 1; x < width - 1; x++)
-            {
-                for (int y = 1; y < height - 1; y++)
-                {
-                    //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
-                    int newValueR = 0;
-                    int newValueG = 0;
-                    int newValueB = 0;
-
-                    for (int i = -1; i <= 1; i++)
-                    {
-                        for (int j = -1; j <= 1; j++)
-                        {
-                            Pixel pixelOrigin = ImagePixels[x + i, y + j];
-                            newValueR += conv[i + 1, j + 1] * pixelOrigin.red;
-                            newValueG += conv[i + 1, j + 1] * pixelOrigin.green;
-                            newValueB += conv[i + 1, j + 1] * pixelOrigin.blue;
-                        }
-                    }
-
-                    //On s'assure que la valeur reste dans la plage de couleurs de 0 à 255
-                    byte newRedvalue = (byte)Math.Max(Math.Min(newValueR, 255), 0);
-                    byte newGreenvalue = (byte)Math.Max(Math.Min(newValueG, 255), 0);
-                    byte newBluevalue = (byte)Math.Max(Math.Min(newValueB, 255), 0);
-
-
-                    //Création du nouveau pixel avec la valeur calculée
-                    Pixel pixelModified =new Pixel(newRedvalue, newGreenvalue, newBluevalue);
-
-                    //On affecte le nouveau pixel à l'image résultante
-                    imageModified[x - 1, y - 1] = pixelModified;
-                }
-            }
-
-
-            return new MyImage(headerBytes, headerInfoBytes, imageModified);
-
-
-        }
-
-
     }
 }
