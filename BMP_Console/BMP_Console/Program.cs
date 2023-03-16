@@ -10,7 +10,8 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestFractal();
+            //TestFractal();
+            TestConv();
             //TestGrayScale();
             //TestBlackAndWhite();
             //TestRescaleByFactor();
@@ -77,6 +78,15 @@ namespace BMP_Console
             fractal.Mandelbrot();
 
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
+        }
+
+        static void TestConv()
+        {
+            MyImage img = new MyImage("../../SampleImages/coco.bmp");
+
+            img = img.Conv(MyImage.contrast);
+
+            img.From_Image_To_File("../../OutputImages/cocoConv.bmp");
         }
     }
 }

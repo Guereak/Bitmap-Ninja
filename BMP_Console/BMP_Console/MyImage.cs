@@ -119,7 +119,7 @@ namespace BMP_Console
 
             for (int i = 0; i < width; i++)
             {
-                for(int j = 0; j < height; j++)
+                for (int j = 0; j < height; j++)
                 {
                     imagePixels[i, j] = new Pixel(0, 0, 0);
                 }
@@ -220,7 +220,7 @@ namespace BMP_Console
             byte[] rep = new byte[size];
             size -= 1;
 
-            while(size >= 0)
+            while (size >= 0)
             {
                 int calc = value / (int)Math.Pow(256, size);
                 rep[size] = (byte)calc;
@@ -235,9 +235,9 @@ namespace BMP_Console
             //Convert pixel matrix to bytes with padding
             byte[] newImageBytes = new byte[bytesPerLine * height];
 
-            for(int i = 0; i < height; i++)
+            for (int i = 0; i < height; i++)
             {
-                for(int j = 0; j < width; j++)
+                for (int j = 0; j < width; j++)
                 {
                     try
                     {
@@ -245,7 +245,7 @@ namespace BMP_Console
                         newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
                         newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Console.WriteLine(i * bytesPerLine + j * 3);
                     }
@@ -258,9 +258,9 @@ namespace BMP_Console
 
         public MyImage ToGrayScale()
         {
-            for(int i = 0; i < width; i++)
+            for (int i = 0; i < width; i++)
             {
-                for(int j = 0; j < height; j++)
+                for (int j = 0; j < height; j++)
                 {
                     Pixel p = imagePixels[i, j];
                     int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
@@ -278,7 +278,7 @@ namespace BMP_Console
         public MyImage ToBlackAndWhite()
         {
             MyImage im = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
-            
+
             for (int i = 0; i < im.width; i++)
             {
                 for (int j = 0; j < im.height; j++)
@@ -362,6 +362,61 @@ namespace BMP_Console
                     imagePixels[i, height - j - 1] = p;
                 }
             }
+        }
+
+        public static int[,] kernel = new int[,] { { -1, -1, -1 }, { -1, 8, -1 }, { -1, -1, -1 } };
+        public static int[,] contrast = new int[,] { { 0, 0, 0, 0, 0 }, { 0, 0, -1, 0, 0 }, { 0, -1, 5, -1, 0 }, { 0, 0, -1, 0, 0 }, { 0, 0, 0, 0, 0 } };
+        public static int[,] blur = new int[,] { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
+        public static int[,] bordReinforcement = new int[,] { { 0, 0, 0 }, { -1, 1, 0 }, { 0, 0, 0 } };
+        public static int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
+        public static int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
+
+        public MyImage Conv(int[,] conv)
+        {
+           
+            //Définition de la taille de l'image
+            int width = this.width;
+            int height = this.height;
+
+            //Création d'une nouvelle image pour stocker le résultat
+            //FIX TRES TEMPORAIRE C'EST MOYEN
+            Pixel[,] imageModified = imagePixels;
+
+            //Boucle à travers chaque pixel de l'image
+            for (int x = 1; x < width - 1; x++)
+            {
+                for (int y = 1; y < height - 1; y++)
+                {
+                    //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
+                    int newValueR = 0;
+                    int newValueG = 0;
+                    int newValueB = 0;
+
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            Pixel pixelOrigin = ImagePixels[x + i, y + j];
+                            newValueR += conv[i + 1, j + 1] * pixelOrigin.red;
+                            newValueG += conv[i + 1, j + 1] * pixelOrigin.green;
+                            newValueB += conv[i + 1, j + 1] * pixelOrigin.blue;
+                        }
+                    }
+
+                    //On s'assure que la valeur reste dans la plage de couleurs de 0 à 255
+                    byte newRedvalue = (byte)Math.Max(Math.Min(newValueR, 255), 0);
+                    byte newGreenvalue = (byte)Math.Max(Math.Min(newValueG, 255), 0);
+                    byte newBluevalue = (byte)Math.Max(Math.Min(newValueB, 255), 0);
+
+
+                    //Création du nouveau pixel avec la valeur calculée
+                    Pixel pixelModified = new Pixel(newRedvalue, newGreenvalue, newBluevalue);
+
+                    //On affecte le nouveau pixel à l'image résultante
+                    imageModified[x - 1, y - 1] = pixelModified;
+                }
+            }
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
         }
     }
 }
