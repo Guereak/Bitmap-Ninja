@@ -31,7 +31,6 @@ namespace BMP_Console
         //The following are handeled by PopulateHeadersProperties method
         int bytesPerLine;
 
-
         #endregion properties
 
         #region access_control
@@ -83,24 +82,21 @@ namespace BMP_Console
             for (int i = 14; i < 14 + DIMSize; i++)
                 headerInfoBytes[i - 14] = fileBytes[i];
 
-            PopulateHeaderProperties(headerBytes, headerInfoBytes);
+            //Populate other properties
+            width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
+            height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+            bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
-            imagePixels = new Pixel[width, height];
-            //Populate pixels
-            imagePixels = new Pixel[width, height];
+            //Populate imageBytes
+            imageBytes = new byte[fileBytes.Length - imgOffset];
 
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    Pixel p = new Pixel(fileBytes[j * 3 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 1 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 2 + i * bytesPerLine + imgOffset]);
-
-                    imagePixels[j, i] = p;
-                }
-            }
+            for (int i = imgOffset; i < fileBytes.Length; i++)
+                imageBytes[i - imgOffset] = fileBytes[i];
         }
 
-        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
+
+        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
         {
             this.imagePixels = pixels;
 
@@ -202,7 +198,6 @@ namespace BMP_Console
 
         #endregion sync
 
-
         public static int Convertir_Endian_To_Int(byte[] bytes)
         {
             int value = 0;
@@ -262,18 +257,22 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    Pixel p = imagePixels[i, j];
-                    int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
+                    int r = imageBytes[i * bytesPerLine + j];
+                    int g = imageBytes[i * bytesPerLine + j + 1];
+                    int b = imageBytes[i * bytesPerLine + j + 2];
 
-                    p.red = Convert.ToByte(grey);
-                    p.green = Convert.ToByte(grey);
-                    p.blue = Convert.ToByte(grey);
+                    int grey = Convert.ToInt32(0.299 * r + 0.587 * g + 0.114 * b);
+
+                    newImageBytes[i * bytesPerLine + j] = Convert.ToByte(grey);
+                    newImageBytes[i * bytesPerLine + j + 1] = Convert.ToByte(grey);
+                    newImageBytes[i * bytesPerLine + j + 2] = Convert.ToByte(grey);
+
+                    j += 3;
                 }
             }
 
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
         }
-
 
         public MyImage ToBlackAndWhite()
         {
@@ -281,25 +280,17 @@ namespace BMP_Console
 
             for (int i = 0; i < im.width; i++)
             {
-                for (int j = 0; j < im.height; j++)
+                if (image.imageBytes[i] >= 64)      //Adapt treshold
                 {
-
-                    if (im.imagePixels[i, j].red < 64)
-                    {
-                        im.imagePixels[i, j].red = 0;
-                        im.imagePixels[i, j].green = 0;
-                        im.imagePixels[i, j].blue = 0;
-                    }
-                    else
-                    {
-                        im.imagePixels[i, j].red = 255;
-                        im.imagePixels[i, j].green = 255;
-                        im.imagePixels[i, j].blue = 255;
-                    }
+                    image.imageBytes[i] = 255;
+                }
+                else
+                {
+                    image.imageBytes[i] = 0;
                 }
             }
 
-            return im;
+            return image;
         }
 
         public MyImage RescaleByFactor(double xFactor, double yFactor)
