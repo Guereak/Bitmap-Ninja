@@ -304,18 +304,140 @@ namespace BMP_Console
             return new MyImage(headerBytes, BuildHeaderInfoBytes(newWidth, newHeight), newPixels);
         }
 
-        public MyImage Rotate(double rotationAngle) // Angle in degree
+        public MyImage Rotate(float rotationAngle) // Angle in degree
         {
-            double rotationAngleRadian = (2 * Math.PI / 360); // Converting the angle in radiant.
-            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian));
+            float rotationAngleRadian = (float) (2 * Math.PI * rotationAngle /360); // Converting the angle in radiant.
+            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian)); // New dimensions
             int newHeight = (int)(this.height * Math.Cos(rotationAngleRadian) - this.width * Math.Sin(rotationAngleRadian));
-            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+            Pixel[,] imageRotated = new Pixel[newWidth, newHeight]; // new image rotated
+            float newCos = (float)Math.Cos(rotationAngleRadian);
+            float newSin = (float)Math.Sin(rotationAngleRadian);
+            Pixel origin = ImagePixels[0, 0]; // à remove
+                                              //Pixel rightOrigin = ImagePixels[0, Get.];
 
-            Pixel origin = ImagePixels[0, 0];
-            //Pixel rightOrigin = ImagePixels[0, Get.];
+            // R=Right, L=Left, U=Up, D=Down, N=New
+
+            Pixel nUL = imagePixels[0, 0];
+
+            float Point1x = height * newSin;
+            float Point1y = height * newCos;
+            float Point2x = width * newCos - height * newSin;
+            float Point2y = height * newCos + width * newSin;
+            float Point3x = width * newCos;
+            float Point3y = width * newSin;
+
+            /*
+            float maxx = Math.Max(0, Math.Max(Point1x, Math.Max(Point2x, Point3x))); //We proceed to determine the maximum coordinates.
+            float maxy = Math.Max(0, Math.Max(Point1y, Math.Max(Point2y, Point3y)));
+            */
+            
+        
+            float minx = Math.Min(0, Math.Min(Point1x, Math.Min(Point2x, Point3x))); // We proceed to determine the minimum coordinates.
+            float miny = Math.Min(0, Math.Min(Point1y, Math.Min(Point2y, Point3y)));
+       
+            
 
 
-            return new MyImage(headerBytes, headerInfoBytes, newPixels);
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+
+                    int originImageY = (int)((j + miny) * newCos - (i + minx) * newSin);
+
+                    int originImageX = (int)((i + minx) * newCos + (j + miny) * newSin);
+                    
+                    if (originImageX >= 0 && originImageX < newWidth && originImageY >= 0 && originImageY < newHeight)
+                    {
+                        imageRotated[i, j] = imagePixels[originImageX, originImageY];
+                    }
+                }
+            }
+
+
+
+            return new MyImage(headerBytes, headerInfoBytes, imageRotated);
+
+        }
+
+        public MyImage Conv()
+        {
+            int[,] kernel = new int[,] { { -1, -1, -1 }, { -1, 8, -1 }, { -1, -1, -1 } };
+            int[,] contrast = new int[,] { { 0, 0, 0, 0, 0 }, { 0, 0, -1, 0, 0 }, { 0, -1, 5, -1, 0 }, { 0, 0, -1, 0, 0 }, { 0, 0, 0, 0, 0 } };
+            int[,] blur = new int[,] { { 0, 0, 0, 0, 0 }, { 0, 1, 1, 1, 0 }, { 0, 1, 1, 1, 0 }, { 0, 1, 1, 1, 0 }, { 0, 0, 0, 0, 0 } };
+            int[,] bordReinforcement = new int[,] { { 0, 0, 0 }, { -1, 1, 0 }, { 0, 0, 0 } };
+            int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
+            int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
+
+
+            Console.WriteLine("What are you looking to do ? Choose between blurring, bordReinforcement, pushback and bordDetection by typing the word");
+            string answ = Console.ReadLine();
+            int[,] conv=null;
+
+            if (answ == "blurrring")
+            {
+                conv = blur;
+            }
+            else if (answ == "bordReinforcement")
+            {
+                conv = bordReinforcement;
+            }
+            else if (answ == "bordDetection")
+            {
+                conv = bordDetection;
+            }
+            else if (answ == "pushback")
+            {
+                conv = pushback;
+            }
+
+
+
+            //Définition de la taille de l'image
+            int width = this.width;
+            int height = this.height;
+
+            //Création d'une nouvelle image pour stocker le résultat
+            Pixel [,] imageModified = new Pixel [width,height];
+
+            //Boucle à travers chaque pixel de l'image
+            for (int x = 1; x < width - 1; x++)
+            {
+                for (int y = 1; y < height - 1; y++)
+                {
+                    //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
+                    int newValueR = 0;
+                    int newValueG = 0;
+                    int newValueB = 0;
+
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            Pixel pixelOrigin = ImagePixels[x + i, y + j];
+                            newValueR += conv[i + 1, j + 1] * pixelOrigin.red;
+                            newValueG += conv[i + 1, j + 1] * pixelOrigin.green;
+                            newValueB += conv[i + 1, j + 1] * pixelOrigin.blue;
+                        }
+                    }
+
+                    //On s'assure que la valeur reste dans la plage de couleurs de 0 à 255
+                    byte newRedvalue = (byte)Math.Max(Math.Min(newValueR, 255), 0);
+                    byte newGreenvalue = (byte)Math.Max(Math.Min(newValueG, 255), 0);
+                    byte newBluevalue = (byte)Math.Max(Math.Min(newValueB, 255), 0);
+
+
+                    //Création du nouveau pixel avec la valeur calculée
+                    Pixel pixelModified =new Pixel(newRedvalue, newGreenvalue, newBluevalue);
+
+                    //On affecte le nouveau pixel à l'image résultante
+                    imageModified[x - 1, y - 1] = pixelModified;
+                }
+            }
+
+
+            return new MyImage(headerBytes, headerInfoBytes, imageModified);
+
 
         }
 
