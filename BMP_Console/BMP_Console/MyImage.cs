@@ -38,6 +38,7 @@ namespace BMP_Console
         public Pixel[,] ImagePixels
         {
             get { return imagePixels; }
+            set { imagePixels = value; }
         }
 
         public int Width
@@ -50,6 +51,15 @@ namespace BMP_Console
         {
             get { return height; }
             set { height = value; }
+        }
+        public int FileSize
+        {
+            get { return fileSize; }
+        }
+
+        public int ImageSize
+        {
+            get { return imageSize; }
         }
 
         #endregion access_control
@@ -173,7 +183,7 @@ namespace BMP_Console
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
 
-        byte[] BuildHeader(int fileSize)
+        internal byte[] BuildHeader(int fileSize)
         {
             byte[] imageTypeBytes = new byte[] { (byte)imageType[0], (byte)imageType[1] };
             byte[] fileSizeBytes = Convertir_Int_To_Endian(fileSize, 4);
@@ -182,7 +192,7 @@ namespace BMP_Console
             return imageTypeBytes.Concat(fileSizeBytes).Concat(reservedBytes).Concat(offsetBytes).ToArray();
         }
 
-        byte[] BuildHeaderInfo(int width, int height, int imageSize)
+        internal byte[] BuildHeaderInfo(int width, int height, int imageSize)
         {
             byte[] sizeBytes = Convertir_Int_To_Endian(40, 4);
             byte[] widthBytes = Convertir_Int_To_Endian(width, 4);
@@ -239,16 +249,9 @@ namespace BMP_Console
             {
                 for (int j = 0; j < width; j++)
                 {
-                    try
-                    {
-                        newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
-                        newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
-                        newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(i * bytesPerLine + j * 3);
-                    }
+                    newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;                  
                 }
             }
             File.WriteAllBytes(path, BuildHeader(fileSize)
@@ -383,9 +386,9 @@ namespace BMP_Console
             Pixel[,] imageModified = imagePixels;
 
             //Boucle à travers chaque pixel de l'image
-            for (int x = 1; x < width - 1; x++)
+            for (int x = 1; x < width; x++)
             {
-                for (int y = 1; y < height - 1; y++)
+                for (int y = 1; y < height; y++)
                 {
                     //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
                     int newValueR = 0;

@@ -57,7 +57,7 @@ namespace BMP_Console
                     ComplexNumber z = new ComplexNumber(((i - 2000) / (double)1000), ((j - 2000) / (double)1000));
                     bool diverging = false;
 
-                    ComplexNumber c = new ComplexNumber(0.3, 0.5);
+                    ComplexNumber c = new ComplexNumber(-0.4, 0.6);
 
                     int iterations = 0;
                     while (!diverging && iterations < maxIterations)
@@ -83,7 +83,7 @@ namespace BMP_Console
         public void Julia()
         {
             Pixel[] colorScheme = new Pixel[] {new Pixel(254, 135, 135), new Pixel(250, 179, 64), new Pixel(109, 153, 162), new Pixel(2, 128, 143), new Pixel(18, 76, 96) };
-            int[] detailLevels = new int[] { 2, 4, 8, 12, 255 };
+            int[] detailLevels = new int[] { 2, 4, 8, 12, 100 };
             for(int i = 0; i < colorScheme.Length; i++)
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();

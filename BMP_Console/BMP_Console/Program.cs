@@ -10,8 +10,10 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            //TestFractal();
-            TestConv();
+            TestStega();
+            //TestJulia();
+            //TestMandelbrot();
+            //TestConv();
             //TestGrayScale();
             //TestBlackAndWhite();
             //TestRescaleByFactor();
@@ -70,7 +72,7 @@ namespace BMP_Console
             img2.From_Image_To_File("../../OutputImages/lacMirroredHorizontal.bmp");
         }
 
-        static void TestFractal()
+        static void TestMandelbrot()
         {
             //Used to time performance of the method
             
@@ -80,6 +82,14 @@ namespace BMP_Console
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
 
+        static void TestJulia()
+        {
+            FractalImage fractal = new FractalImage(4000, 4000);
+            fractal.Julia();
+
+            fractal.From_Image_To_File("../../OutputImages/Julia.bmp");
+        }
+
         static void TestConv()
         {
             MyImage img = new MyImage("../../SampleImages/coco.bmp");
@@ -87,6 +97,15 @@ namespace BMP_Console
             img = img.Conv(MyImage.contrast);
 
             img.From_Image_To_File("../../OutputImages/cocoConv.bmp");
+        }
+
+        static void TestStega()
+        {
+            MyImage parentImage = new MyImage("../../SampleImages/lac.bmp");
+            MyImage hiddenImage = new MyImage("../../SampleImages/coco.bmp");
+
+            MyImage result = Steganography.Hide(parentImage, hiddenImage);
+            result.From_Image_To_File("../../OutputImages/stega.bmp");
         }
     }
 }
