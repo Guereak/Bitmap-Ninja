@@ -7,6 +7,16 @@
         mc:Ignorable="d"
         x:Name="MainCanvas"
         Title="MainWindow" Height="450" Width="800">
-    
-    
+
+    <DockPanel LastChildFill="False">
+        <DockPanel LastChildFill="False"  DockPanel.Dock="Left" Width="200">
+            <Button Content="Greyscale" DockPanel.Dock="Top" Click="Greyscale_Click" />
+            <Button Content="Black and White" DockPanel.Dock="Top" Click="BlackAndWhite_Click" />
+            <Button Content="Safwan's mom" DockPanel.Dock="Top" />
+        </DockPanel>
+
+        <Image Source="/SampleImages/lac.bmp"/>
+    </DockPanel>
+
+
 </Window>
