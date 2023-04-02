@@ -11,6 +11,7 @@ namespace BMP_Console
         static void Main(string[] args)
         {
             TestStega();
+
             //TestJulia();
             //TestMandelbrot();
             //TestConv();
@@ -101,11 +102,16 @@ namespace BMP_Console
 
         static void TestStega()
         {
-            MyImage parentImage = new MyImage("../../SampleImages/lac.bmp");
+            MyImage parentImage = new MyImage("../../SampleImages/lena.bmp");
             MyImage hiddenImage = new MyImage("../../SampleImages/coco.bmp");
 
-            MyImage result = Steganography.Hide(parentImage, hiddenImage);
+            MyImage result =    Steganography.Hide(parentImage, hiddenImage, 2);
             result.From_Image_To_File("../../OutputImages/stega.bmp");
+
+            MyImage retrieved = Steganography.RestoreHidden(result, 2);
+            retrieved.From_Image_To_File("../../OutputImages/stegaHidden.bmp");
         }
+
+        
     }
 }
