@@ -323,19 +323,69 @@ namespace BMP_Console
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(newWidth, newHeight, 0), newPixels);
         }
 
+        
 
-        public MyImage Rotate(double rotationAngle) // Angle in degree
+
+
+        public MyImage RotateV3(float rotationAngle) // Angle in degree
         {
-            double rotationAngleRadian = (2 * Math.PI / 360); // Converting the angle in radiant.
-            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian));
-            int newHeight = (int)(this.height * Math.Cos(rotationAngleRadian) - this.width * Math.Sin(rotationAngleRadian));
-            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+            float rotationAngleRadian = (float)(2 * Math.PI * (-1)*rotationAngle / 360); // Converting the angle in radiant.
+            uint newWidth = (uint)Math.Ceiling(Math.Abs(Width * Math.Cos(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Sin(rotationAngle * Math.PI / 180)));
+            uint newHeight = (uint)Math.Ceiling(Math.Abs(Width * Math.Sin(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Cos(rotationAngle * Math.PI / 180)));
+            Pixel[,] imageRotated = new Pixel[newWidth, newHeight]; // new image rotated
+            float newCos = (float)Math.Cos(rotationAngleRadian);
+            float newSin = (float)Math.Sin(rotationAngleRadian);
+            Pixel origin = ImagePixels[0, 0]; // Ã  remove
+                                              //Pixel rightOrigin = ImagePixels[0, Get.];
 
-            Pixel origin = ImagePixels[0, 0];
-            //Pixel rightOrigin = ImagePixels[0, Get.];
+            // R=Right, L=Left, U=Up, D=Down, N=New
+            
+            Pixel nUL = imagePixels[0, 0];
 
-            //return new MyImage(headerBytes, headerInfoBytes, newPixels);
-            return null;
+            float Point1x = height * newSin;
+            float Point1y = height * newCos;
+            float Point2x = width * newCos - height * newSin;
+            float Point2y = height * newCos + width * newSin;
+            float Point3x = width * newCos;
+            float Point3y = width * newSin;
+
+            
+            float maxx = Math.Max(0, Math.Max(Point1x, Math.Max(Point2x, Point3x))); //We proceed to determine the maximum coordinates.
+            float maxy = Math.Max(0, Math.Max(Point1y, Math.Max(Point2y, Point3y)));
+            float minx = Math.Min(0, Math.Min(Point1x, Math.Min(Point2x, Point3x))); // We proceed to determine the minimum coordinates.
+            float miny = Math.Min(0, Math.Min(Point1y, Math.Min(Point2y, Point3y)));
+            
+
+
+
+
+            for (int i = 0; i < newWidth; i++)
+            {
+                for (int j = 0; j < newHeight; j++)
+                {
+
+
+                    float originImageX = (i - newWidth / 2) * newCos - (j - newHeight / 2) * newSin + (width / 2);
+                    float originImageY = (i - newWidth / 2) * newSin + (j - newHeight / 2) * newCos + (height / 2);
+                    /*
+                    int originImageY = (int)((j + miny) * newCos - (i + minx) * newSin);
+
+                    int originImageX = (int)((i + minx) * newCos + (j + miny) * newSin);
+                    */
+
+                    if (originImageX >= 0 && originImageX < width && originImageY >= 0 && originImageY < height)
+                    {
+                        imageRotated[i,j] = imagePixels[(int)originImageX, (int)originImageY];
+                    }
+                    else
+                    {
+                        imageRotated[i, j] = new Pixel(0, 0, 0);
+                    }
+                }
+            }
+    
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo((int)newWidth, (int)newHeight, imageSize), imageRotated);
+
         }
 
         public void Mirror_Horizontal()
@@ -371,52 +421,80 @@ namespace BMP_Console
         public static int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
         public static int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
 
-        public MyImage Conv(int[,] conv)
+      
+ 
+
+        public MyImage Convolution11(int[,] conv)
         {
-           
-            //Définition de la taille de l'image
-            int width = this.width;
-            int height = this.height;
+        
+            Pixel[,] imageModified = new Pixel[width, height];
+            int convHeight = conv.GetLength(1);
+            int convWidth = conv.GetLength(0);
+            //Used for the edge pixels
+            int ignoredPixX = convWidth / 2;
+            int ignoredPixY = convHeight / 2;
 
-            //Création d'une nouvelle image pour stocker le résultat
-            //FIX TRES TEMPORAIRE C'EST MOYEN
-            Pixel[,] imageModified = imagePixels;
-
-            //Boucle à travers chaque pixel de l'image
-            for (int x = 1; x < width - 1; x++)
+            //image 
+            for (int x = 0; x < width; x++)
             {
-                for (int y = 1; y < height - 1; y++)
+                for (int y = 0; y < height; y++)
                 {
-                    //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
                     int newValueR = 0;
                     int newValueG = 0;
                     int newValueB = 0;
 
-                    for (int i = -1; i <= 1; i++)
+                    //conv 
+                    for (int i = 0; i < convWidth; i++)
                     {
-                        for (int j = -1; j <= 1; j++)
+                        for (int j = 0; j < convHeight; j++)
                         {
-                            Pixel pixelOrigin = ImagePixels[x + i, y + j];
-                            newValueR += conv[i + 1, j + 1] * pixelOrigin.red;
-                            newValueG += conv[i + 1, j + 1] * pixelOrigin.green;
-                            newValueB += conv[i + 1, j + 1] * pixelOrigin.blue;
+                            //coordinates calculus
+                            int pixelX = x + i - ignoredPixX;
+                            int pixelY = y + j - ignoredPixY;
+
+                            //Edge treated using the reflexion method
+
+                            if (pixelX < 0)
+                            {
+                                pixelX = -pixelX;
+                            }
+
+                            else if (pixelX >= width)
+                            {
+                                pixelX = 2 * (width - 1) - pixelX;
+                            }
+
+                            if (pixelY < 0)
+                            {
+                                pixelY = -pixelY;
+                            }
+
+                            else if (pixelY >= height)
+                            {
+                                pixelY = 2 * (height - 1) - pixelY;
+                            }
+
+
+
+                            Pixel pixel = ImagePixels[pixelX, pixelY];
+                            newValueR += conv[i, j] * pixel.red;
+                            newValueG += conv[i, j] * pixel.green;
+                            newValueB += conv[i, j] * pixel.blue;
+
+
                         }
                     }
 
-                    //On s'assure que la valeur reste dans la plage de couleurs de 0 à 255
-                    byte newRedvalue = (byte)Math.Max(Math.Min(newValueR, 255), 0);
-                    byte newGreenvalue = (byte)Math.Max(Math.Min(newValueG, 255), 0);
-                    byte newBluevalue = (byte)Math.Max(Math.Min(newValueB, 255), 0);
+                    Pixel pixelModified = new Pixel((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0),(byte)Math.Max(Math.Min(newValueB, 255), 0));
 
-
-                    //Création du nouveau pixel avec la valeur calculée
-                    Pixel pixelModified = new Pixel(newRedvalue, newGreenvalue, newBluevalue);
-
-                    //On affecte le nouveau pixel à l'image résultante
-                    imageModified[x - 1, y - 1] = pixelModified;
+                    imageModified[x, y] = pixelModified;
                 }
             }
-            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
+
+            MyImage ImageConv = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
+
+            return ImageConv;
         }
+
     }
 }

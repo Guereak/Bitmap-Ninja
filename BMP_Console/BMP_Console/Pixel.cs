@@ -13,7 +13,5 @@
             this.green = green;
             this.blue = blue;
         }
-
-
     }
 }

@@ -11,12 +11,14 @@ namespace BMP_Console
         static void Main(string[] args)
         {
             //TestFractal();
-            TestConv();
+            //TestConvolution();
             //TestGrayScale();
             //TestBlackAndWhite();
             //TestRescaleByFactor();
             //TestMirror();
             //TestBlankImage();
+            TestRotateV2();
+            //TestConv();
             Console.WriteLine("Done");
             Console.ReadKey();
         }
@@ -80,13 +82,21 @@ namespace BMP_Console
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
 
-        static void TestConv()
+        static void TestConvolution() // ça marche !
         {
-            MyImage img = new MyImage("../../SampleImages/coco.bmp");
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
-            img = img.Conv(MyImage.contrast);
+            img = img.Convolution11(MyImage.bordDetection);
 
-            img.From_Image_To_File("../../OutputImages/cocoConv.bmp");
+            img.From_Image_To_File("../../OutputImages/lacConvol.bmp");
+        }
+        static void TestRotateV2()
+        {
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+
+            img = img.RotateV3(60);
+
+            img.From_Image_To_File("../../OutputImages/lacRot.bmp");
         }
     }
 }
