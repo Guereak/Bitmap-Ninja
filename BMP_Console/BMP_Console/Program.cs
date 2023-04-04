@@ -11,24 +11,19 @@ namespace BMP_Console
         static void Main(string[] args)
         {
             //TestFractal();
-            //TestConvolution();
-            TestStega();
-
-            //TestJulia();
-            //TestMandelbrot();
-            //TestConv();
+            TestConv();
             //TestGrayScale();
             //TestBlackAndWhite();
             //TestRescaleByFactor();
             //TestMirror();
             //TestBlankImage();
-            TestRotateV2();
+            //TestRotate();
             //TestConv();
             Console.WriteLine("Done");
             Console.ReadKey();
-        }
+    }
 
-        static void TestGrayScale()
+    static void TestGrayScale()
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
@@ -87,34 +82,22 @@ namespace BMP_Console
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
 
-        static void TestConvolution()
-        {
-            MyImage img = new MyImage("../../SampleImages/lac.bmp");
-
-            img = img.Convolution11(MyImage.bordDetection);
-
-            img.From_Image_To_File("../../OutputImages/lacConvol.bmp");
-        }
-            
-            
-            // ça marche !
-
-        static void TestJulia()
-        {
-            FractalImage fractal = new FractalImage(4000, 4000);
-            fractal.Julia();
-
-            fractal.From_Image_To_File("../../OutputImages/Julia.bmp");
-        }
-
-        
-        static void TestRotateV2()
+        static void TestRotate()
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
             img = img.RotateV3(60);
 
             img.From_Image_To_File("../../OutputImages/lacRot.bmp");
+        }
+
+
+        static void TestConv()
+        {
+            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+            img = img.Convolution11(MyImage.pushback);
+            img.From_Image_To_File("../../OutputImages/lacConvo.bmp");
+
         }
 
         static void TestStega()

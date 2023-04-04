@@ -439,18 +439,13 @@ namespace BMP_Console
             int ignoredPixY = convHeight / 2;
 
             //image 
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-
-                    //Création d'une nouvelle image pour stocker le résultat
-                    //FIX TRES TEMPORAIRE C'EST MOYEN
-                    Pixel[,] imageModified = imagePixels;
-
+           
+            //Création d'une nouvelle image pour stocker le résultat
+            //FIX TRES TEMPORAIRE C'EST MOYEN
                 //Boucle à travers chaque pixel de l'image
-                for (int x = 1; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    for (int y = 1; y < height; y++)
+                    for (int y = 0; y < height; y++)
 
                     {
                         int newValueR = 0;
@@ -512,4 +507,4 @@ namespace BMP_Console
 
         }
     }
-}
+
