@@ -12,6 +12,11 @@ namespace BMP_Console
         {
             //TestFractal();
             //TestConvolution();
+            TestStega();
+
+            //TestJulia();
+            //TestMandelbrot();
+            //TestConv();
             //TestGrayScale();
             //TestBlackAndWhite();
             //TestRescaleByFactor();
@@ -72,7 +77,7 @@ namespace BMP_Console
             img2.From_Image_To_File("../../OutputImages/lacMirroredHorizontal.bmp");
         }
 
-        static void TestFractal()
+        static void TestMandelbrot()
         {
             //Used to time performance of the method
             
@@ -82,7 +87,7 @@ namespace BMP_Console
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
 
-        static void TestConvolution() // ça marche !
+        static void TestConvolution()
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
 
@@ -90,6 +95,19 @@ namespace BMP_Console
 
             img.From_Image_To_File("../../OutputImages/lacConvol.bmp");
         }
+            
+            
+            // ça marche !
+
+        static void TestJulia()
+        {
+            FractalImage fractal = new FractalImage(4000, 4000);
+            fractal.Julia();
+
+            fractal.From_Image_To_File("../../OutputImages/Julia.bmp");
+        }
+
+        
         static void TestRotateV2()
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
@@ -98,5 +116,19 @@ namespace BMP_Console
 
             img.From_Image_To_File("../../OutputImages/lacRot.bmp");
         }
+
+        static void TestStega()
+        {
+            MyImage parentImage = new MyImage("../../SampleImages/lena.bmp");
+            MyImage hiddenImage = new MyImage("../../SampleImages/coco.bmp");
+
+            MyImage result =    Steganography.Hide(parentImage, hiddenImage, 2);
+            result.From_Image_To_File("../../OutputImages/stega.bmp");
+
+            MyImage retrieved = Steganography.RestoreHidden(result, 2);
+            retrieved.From_Image_To_File("../../OutputImages/stegaHidden.bmp");
+        }
+
+        
     }
 }

@@ -38,6 +38,7 @@ namespace BMP_Console
         public Pixel[,] ImagePixels
         {
             get { return imagePixels; }
+            set { imagePixels = value; }
         }
 
         public int Width
@@ -50,6 +51,15 @@ namespace BMP_Console
         {
             get { return height; }
             set { height = value; }
+        }
+        public int FileSize
+        {
+            get { return fileSize; }
+        }
+
+        public int ImageSize
+        {
+            get { return imageSize; }
         }
 
         #endregion access_control
@@ -173,7 +183,7 @@ namespace BMP_Console
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
         }
 
-        byte[] BuildHeader(int fileSize)
+        internal byte[] BuildHeader(int fileSize)
         {
             byte[] imageTypeBytes = new byte[] { (byte)imageType[0], (byte)imageType[1] };
             byte[] fileSizeBytes = Convertir_Int_To_Endian(fileSize, 4);
@@ -182,7 +192,7 @@ namespace BMP_Console
             return imageTypeBytes.Concat(fileSizeBytes).Concat(reservedBytes).Concat(offsetBytes).ToArray();
         }
 
-        byte[] BuildHeaderInfo(int width, int height, int imageSize)
+        internal byte[] BuildHeaderInfo(int width, int height, int imageSize)
         {
             byte[] sizeBytes = Convertir_Int_To_Endian(40, 4);
             byte[] widthBytes = Convertir_Int_To_Endian(width, 4);
@@ -239,16 +249,9 @@ namespace BMP_Console
             {
                 for (int j = 0; j < width; j++)
                 {
-                    try
-                    {
-                        newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
-                        newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
-                        newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(i * bytesPerLine + j * 3);
-                    }
+                    newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
                 }
             }
             File.WriteAllBytes(path, BuildHeader(fileSize)
@@ -323,13 +326,13 @@ namespace BMP_Console
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(newWidth, newHeight, 0), newPixels);
         }
 
-        
+
 
 
 
         public MyImage RotateV3(float rotationAngle) // Angle in degree
         {
-            float rotationAngleRadian = (float)(2 * Math.PI * (-1)*rotationAngle / 360); // Converting the angle in radiant.
+            float rotationAngleRadian = (float)(2 * Math.PI * (-1) * rotationAngle / 360); // Converting the angle in radiant.
             uint newWidth = (uint)Math.Ceiling(Math.Abs(Width * Math.Cos(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Sin(rotationAngle * Math.PI / 180)));
             uint newHeight = (uint)Math.Ceiling(Math.Abs(Width * Math.Sin(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Cos(rotationAngle * Math.PI / 180)));
             Pixel[,] imageRotated = new Pixel[newWidth, newHeight]; // new image rotated
@@ -339,7 +342,7 @@ namespace BMP_Console
                                               //Pixel rightOrigin = ImagePixels[0, Get.];
 
             // R=Right, L=Left, U=Up, D=Down, N=New
-            
+
             Pixel nUL = imagePixels[0, 0];
 
             float Point1x = height * newSin;
@@ -349,12 +352,12 @@ namespace BMP_Console
             float Point3x = width * newCos;
             float Point3y = width * newSin;
 
-            
+
             float maxx = Math.Max(0, Math.Max(Point1x, Math.Max(Point2x, Point3x))); //We proceed to determine the maximum coordinates.
             float maxy = Math.Max(0, Math.Max(Point1y, Math.Max(Point2y, Point3y)));
             float minx = Math.Min(0, Math.Min(Point1x, Math.Min(Point2x, Point3x))); // We proceed to determine the minimum coordinates.
             float miny = Math.Min(0, Math.Min(Point1y, Math.Min(Point2y, Point3y)));
-            
+
 
 
 
@@ -375,7 +378,7 @@ namespace BMP_Console
 
                     if (originImageX >= 0 && originImageX < width && originImageY >= 0 && originImageY < height)
                     {
-                        imageRotated[i,j] = imagePixels[(int)originImageX, (int)originImageY];
+                        imageRotated[i, j] = imagePixels[(int)originImageX, (int)originImageY];
                     }
                     else
                     {
@@ -383,7 +386,7 @@ namespace BMP_Console
                     }
                 }
             }
-    
+
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo((int)newWidth, (int)newHeight, imageSize), imageRotated);
 
         }
@@ -421,12 +424,13 @@ namespace BMP_Console
         public static int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
         public static int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
 
-      
- 
+
+
+
 
         public MyImage Convolution11(int[,] conv)
         {
-        
+
             Pixel[,] imageModified = new Pixel[width, height];
             int convHeight = conv.GetLength(1);
             int convWidth = conv.GetLength(0);
@@ -438,63 +442,74 @@ namespace BMP_Console
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
+
+                    //Création d'une nouvelle image pour stocker le résultat
+                    //FIX TRES TEMPORAIRE C'EST MOYEN
+                    Pixel[,] imageModified = imagePixels;
+
+                //Boucle à travers chaque pixel de l'image
+                for (int x = 1; x < width; x++)
                 {
-                    int newValueR = 0;
-                    int newValueG = 0;
-                    int newValueB = 0;
+                    for (int y = 1; y < height; y++)
 
-                    //conv 
-                    for (int i = 0; i < convWidth; i++)
                     {
-                        for (int j = 0; j < convHeight; j++)
+                        int newValueR = 0;
+                        int newValueG = 0;
+                        int newValueB = 0;
+
+                        //conv 
+                        for (int i = 0; i < convWidth; i++)
                         {
-                            //coordinates calculus
-                            int pixelX = x + i - ignoredPixX;
-                            int pixelY = y + j - ignoredPixY;
-
-                            //Edge treated using the reflexion method
-
-                            if (pixelX < 0)
+                            for (int j = 0; j < convHeight; j++)
                             {
-                                pixelX = -pixelX;
+                                //coordinates calculus
+                                int pixelX = x + i - ignoredPixX;
+                                int pixelY = y + j - ignoredPixY;
+
+                                //Edge treated using the reflexion method
+
+                                if (pixelX < 0)
+                                {
+                                    pixelX = -pixelX;
+                                }
+
+                                else if (pixelX >= width)
+                                {
+                                    pixelX = 2 * (width - 1) - pixelX;
+                                }
+
+                                if (pixelY < 0)
+                                {
+                                    pixelY = -pixelY;
+                                }
+
+                                else if (pixelY >= height)
+                                {
+                                    pixelY = 2 * (height - 1) - pixelY;
+                                }
+
+
+
+                                Pixel pixel = ImagePixels[pixelX, pixelY];
+                                newValueR += conv[i, j] * pixel.red;
+                                newValueG += conv[i, j] * pixel.green;
+                                newValueB += conv[i, j] * pixel.blue;
+
+
                             }
-
-                            else if (pixelX >= width)
-                            {
-                                pixelX = 2 * (width - 1) - pixelX;
-                            }
-
-                            if (pixelY < 0)
-                            {
-                                pixelY = -pixelY;
-                            }
-
-                            else if (pixelY >= height)
-                            {
-                                pixelY = 2 * (height - 1) - pixelY;
-                            }
-
-
-
-                            Pixel pixel = ImagePixels[pixelX, pixelY];
-                            newValueR += conv[i, j] * pixel.red;
-                            newValueG += conv[i, j] * pixel.green;
-                            newValueB += conv[i, j] * pixel.blue;
-
-
                         }
+
+                        Pixel pixelModified = new Pixel((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0), (byte)Math.Max(Math.Min(newValueB, 255), 0));
+
+                        imageModified[x, y] = pixelModified;
                     }
-
-                    Pixel pixelModified = new Pixel((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0),(byte)Math.Max(Math.Min(newValueB, 255), 0));
-
-                    imageModified[x, y] = pixelModified;
                 }
+
+                MyImage ImageConv = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
+
+                return ImageConv;
             }
 
-            MyImage ImageConv = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
-
-            return ImageConv;
         }
-
     }
 }
