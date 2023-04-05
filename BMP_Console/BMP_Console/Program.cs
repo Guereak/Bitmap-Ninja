@@ -10,15 +10,17 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            //TestFractal();
+            TestMandelbrot();
+            TestJulia();
             TestConv();
-            //TestGrayScale();
-            //TestBlackAndWhite();
-            //TestRescaleByFactor();
-            //TestMirror();
-            //TestBlankImage();
-            //TestRotate();
-            //TestConv();
+            TestGrayScale();
+            TestBlackAndWhite();
+            TestRescaleByFactor();
+            TestMirror();
+            TestBlankImage();
+            TestRotate();
+            TestConv();
+            TestStega();
             Console.WriteLine("Done");
             Console.ReadKey();
     }
@@ -82,6 +84,14 @@ namespace BMP_Console
             fractal.From_Image_To_File("../../OutputImages/Mandelbrot.bmp");
         }
 
+        static void TestJulia()
+        {
+            FractalImage fractal = new FractalImage(4000, 4000);
+            fractal.Julia();
+
+            fractal.From_Image_To_File("../../OutputImages/Julia.bmp");
+        }
+
         static void TestRotate()
         {
             MyImage img = new MyImage("../../SampleImages/lac.bmp");
@@ -105,13 +115,12 @@ namespace BMP_Console
             MyImage parentImage = new MyImage("../../SampleImages/lena.bmp");
             MyImage hiddenImage = new MyImage("../../SampleImages/coco.bmp");
 
-            MyImage result =    Steganography.Hide(parentImage, hiddenImage, 2);
+            MyImage result =    Steganography.Hide(parentImage, hiddenImage, 4);
             result.From_Image_To_File("../../OutputImages/stega.bmp");
 
-            MyImage retrieved = Steganography.RestoreHidden(result, 2);
+            MyImage retrieved = Steganography.RestoreHidden(result, 4);
             retrieved.From_Image_To_File("../../OutputImages/stegaHidden.bmp");
         }
-
-        
     }
 }
+    

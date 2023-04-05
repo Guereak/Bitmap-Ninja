@@ -441,7 +441,6 @@ namespace BMP_Console
             //image 
            
             //Création d'une nouvelle image pour stocker le résultat
-            //FIX TRES TEMPORAIRE C'EST MOYEN
                 //Boucle à travers chaque pixel de l'image
                 for (int x = 0; x < width; x++)
                 {
