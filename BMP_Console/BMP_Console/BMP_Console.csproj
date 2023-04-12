@@ -45,9 +45,13 @@
   <ItemGroup>
     <Compile Include="ComplexNumber.cs" />
     <Compile Include="FractalImage.cs" />
+    <Compile Include="Huffman.cs" />
+    <Compile Include="JPEG.cs" />
     <Compile Include="MyImage.cs" />
+    <Compile Include="Noeud.cs" />
+    <Compile Include="PixelYCbCr.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Pixel.cs" />
+    <Compile Include="PixelRGB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steganography.cs" />
   </ItemGroup>

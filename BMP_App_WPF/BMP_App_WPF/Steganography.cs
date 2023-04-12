@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BMP_Console
+namespace BMP_App_WPF
 {
     class Steganography : MyImage
     {
         public static MyImage Hide(MyImage parentImage, MyImage hiddenImage, int byteShift)
         {
             if (parentImage.Width < hiddenImage.Width || parentImage.Height < hiddenImage.Height)
-                throw new Exception("L'image cachée doit être inférieure ou égale en taille à l'image parente");          
+                throw new Exception("L'image cachée doit être inférieure ou égale en taille à l'image parente");
 
 
             byte b = (byte)(Shift(byteShift) ^ 0xFF);
@@ -53,8 +53,8 @@ namespace BMP_Console
                 for (int j = 0; j < parentImage.Width; j++)
                 {
                     newPixels[j, i] = new PixelRGB(
-                        (byte)((parentImage.ImagePixels[j, i].red) << byteShift), 
-                        (byte)((parentImage.ImagePixels[j, i].green) << byteShift), 
+                        (byte)((parentImage.ImagePixels[j, i].red) << byteShift),
+                        (byte)((parentImage.ImagePixels[j, i].green) << byteShift),
                         (byte)((parentImage.ImagePixels[j, i].blue) << byteShift)
                     );
                 }

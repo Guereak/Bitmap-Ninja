@@ -10,24 +10,37 @@ namespace BMP_Console
     {
         static void Main(string[] args)
         {
-            TestMandelbrot();
-            TestJulia();
-            TestConv();
-            TestGrayScale();
-            TestBlackAndWhite();
-            TestRescaleByFactor();
-            TestMirror();
-            TestBlankImage();
-            TestRotate();
-            TestConv();
-            TestStega();
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+            //JPEG.DisplayMatrix(JPEG.DiscreteCosineTransform(JPEG.test));
+            //
+            //watch.Stop();
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+            //byte[] huff = { 00, 01, 02, 05, 02, 07, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 11, 12, 31, 00, 01, 02, 13, 14, 21, 51, 03, 15, 32, 33, 34, 61, 72 };
+            //
+            //Huffman.PrintDict(Huffman.BinaryToHuffmanTable(huff));
+
+            TestCompression();
+
+            //TestRGBYCbCr();
+
+            //TestMandelbrot();
+            //TestJulia();
+            //TestConv();
+            //TestGrayScale();
+            //TestBlackAndWhite();
+            //TestRescaleByFactor();
+            //TestMirror();
+            //TestBlankImage();
+            //TestRotate();
+            //TestConv();
+            //TestStega();
             Console.WriteLine("Done");
             Console.ReadKey();
-    }
+        }
 
-    static void TestGrayScale()
+        static void TestGrayScale()
         {
-            MyImage img = new MyImage("../../SampleImages/lac.bmp");
+            MyImage img = new MyImage("../../SampleImages/test2.bmp");
 
             MyImage imgGrey = img.ToGrayScale();
 
@@ -77,7 +90,7 @@ namespace BMP_Console
         static void TestMandelbrot()
         {
             //Used to time performance of the method
-            
+
             FractalImage fractal = new FractalImage(4000, 4000);
             fractal.Mandelbrot();
 
@@ -115,11 +128,30 @@ namespace BMP_Console
             MyImage parentImage = new MyImage("../../SampleImages/lena.bmp");
             MyImage hiddenImage = new MyImage("../../SampleImages/coco.bmp");
 
-            MyImage result =    Steganography.Hide(parentImage, hiddenImage, 4);
+            MyImage result = Steganography.Hide(parentImage, hiddenImage, 4);
             result.From_Image_To_File("../../OutputImages/stega.bmp");
 
             MyImage retrieved = Steganography.RestoreHidden(result, 4);
             retrieved.From_Image_To_File("../../OutputImages/stegaHidden.bmp");
+        }
+
+        static void TestRGBYCbCr()
+        {
+            PixelRGB p1 = new PixelRGB(102, 255, 255);
+            Console.WriteLine($"{p1.red}, {p1.green}, {p1.blue}");
+
+            PixelYCbCr p2 = p1.ToYCbCr();
+            Console.WriteLine($"{p2.Y}, {p2.Cb}, {p2.Cr}");
+
+            PixelRGB p3 = p2.toRGB();
+            Console.WriteLine($"{p3.red}, {p3.green}, {p3.blue}");
+        }
+
+        static void TestCompression()
+        {
+            MyImage parentImage = new MyImage("../../SampleImages/test2.bmp");
+
+            JPEG.FullJpegCompression(parentImage);
         }
     }
 }

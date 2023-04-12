@@ -7,7 +7,7 @@ namespace BMP_Console
     partial class MyImage
     {
         #region properties
-        protected Pixel[,] imagePixels;
+        protected PixelRGB[,] imagePixels;
 
         //Header properties
         string imageType;
@@ -35,7 +35,7 @@ namespace BMP_Console
         #endregion properties
 
         #region access_control
-        public Pixel[,] ImagePixels
+        public PixelRGB[,] ImagePixels
         {
             get { return imagePixels; }
             set { imagePixels = value; }
@@ -95,22 +95,22 @@ namespace BMP_Console
 
             PopulateHeaderProperties(headerBytes, headerInfoBytes);
 
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
             //Populate pixels
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
 
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
                 {
-                    Pixel p = new Pixel(fileBytes[j * 3 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 1 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 2 + i * bytesPerLine + imgOffset]);
+                    PixelRGB p = new PixelRGB(fileBytes[j * 3 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 1 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 2 + i * bytesPerLine + imgOffset]);
 
                     imagePixels[j, i] = p;
                 }
             }
         }
 
-        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, Pixel[,] pixels)
+        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, PixelRGB[,] pixels)
         {
             this.imagePixels = pixels;
 
@@ -120,7 +120,7 @@ namespace BMP_Console
         //Used to generate a blank image
         public MyImage(int width, int height)
         {
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
 
             imageType = "BM";
             this.width = width;
@@ -131,7 +131,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                    imagePixels[i, j] = new PixelRGB(0, 0, 0);
                 }
             }
         }
@@ -144,13 +144,13 @@ namespace BMP_Console
             height = 4000;
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
 
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
                 {
-                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                    imagePixels[i, j] = new PixelRGB(0, 0, 0);
                 }
             }
         }
@@ -265,7 +265,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    Pixel p = imagePixels[i, j];
+                    PixelRGB p = imagePixels[i, j];
                     int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
 
                     p.red = Convert.ToByte(grey);
@@ -310,7 +310,7 @@ namespace BMP_Console
             int newWidth = (int)(width * xFactor);
             int newHeight = (int)(height * yFactor);
 
-            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+            PixelRGB[,] newPixels = new PixelRGB[newWidth, newHeight];
 
             for (int i = 0; i < newHeight; i++)
             {
@@ -335,15 +335,15 @@ namespace BMP_Console
             float rotationAngleRadian = (float)(2 * Math.PI * (-1) * rotationAngle / 360); // Converting the angle in radiant.
             uint newWidth = (uint)Math.Ceiling(Math.Abs(Width * Math.Cos(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Sin(rotationAngle * Math.PI / 180)));
             uint newHeight = (uint)Math.Ceiling(Math.Abs(Width * Math.Sin(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Cos(rotationAngle * Math.PI / 180)));
-            Pixel[,] imageRotated = new Pixel[newWidth, newHeight]; // new image rotated
+            PixelRGB[,] imageRotated = new PixelRGB[newWidth, newHeight]; // new image rotated
             float newCos = (float)Math.Cos(rotationAngleRadian);
             float newSin = (float)Math.Sin(rotationAngleRadian);
-            Pixel origin = ImagePixels[0, 0]; // Ã  remove
+            PixelRGB origin = ImagePixels[0, 0]; // Ã  remove
                                               //Pixel rightOrigin = ImagePixels[0, Get.];
 
             // R=Right, L=Left, U=Up, D=Down, N=New
 
-            Pixel nUL = imagePixels[0, 0];
+            PixelRGB nUL = imagePixels[0, 0];
 
             float Point1x = height * newSin;
             float Point1y = height * newCos;
@@ -382,7 +382,7 @@ namespace BMP_Console
                     }
                     else
                     {
-                        imageRotated[i, j] = new Pixel(0, 0, 0);
+                        imageRotated[i, j] = new PixelRGB(0, 0, 0);
                     }
                 }
             }
@@ -397,7 +397,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < width / 2; j++)
                 {
-                    Pixel p = imagePixels[j, i];
+                    PixelRGB p = imagePixels[j, i];
                     imagePixels[j, i] = imagePixels[width - j - 1, i];
                     imagePixels[width - j - 1, i] = p;
                 }
@@ -410,7 +410,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height / 2; j++)
                 {
-                    Pixel p = imagePixels[i, j];
+                    PixelRGB p = imagePixels[i, j];
                     imagePixels[i, j] = imagePixels[i, height - j - 1];
                     imagePixels[i, height - j - 1] = p;
                 }
@@ -431,7 +431,7 @@ namespace BMP_Console
         public MyImage Convolution11(int[,] conv)
         {
 
-            Pixel[,] imageModified = new Pixel[width, height];
+            PixelRGB[,] imageModified = new PixelRGB[width, height];
             int convHeight = conv.GetLength(1);
             int convWidth = conv.GetLength(0);
             //Used for the edge pixels
@@ -484,7 +484,7 @@ namespace BMP_Console
 
 
 
-                                Pixel pixel = ImagePixels[pixelX, pixelY];
+                                PixelRGB pixel = ImagePixels[pixelX, pixelY];
                                 newValueR += conv[i, j] * pixel.red;
                                 newValueG += conv[i, j] * pixel.green;
                                 newValueB += conv[i, j] * pixel.blue;
@@ -493,7 +493,7 @@ namespace BMP_Console
                             }
                         }
 
-                        Pixel pixelModified = new Pixel((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0), (byte)Math.Max(Math.Min(newValueB, 255), 0));
+                        PixelRGB pixelModified = new PixelRGB((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0), (byte)Math.Max(Math.Min(newValueB, 255), 0));
 
                         imageModified[x, y] = pixelModified;
                     }
@@ -503,6 +503,19 @@ namespace BMP_Console
 
                 return ImageConv;
             }
+
+        public MyImage Negative()
+        {
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    imagePixels[i, j] = new PixelRGB((byte)(255 - (int)imagePixels[i, j].red), (byte)(255 - (int)imagePixels[i, j].green), (byte)(255 - (int)imagePixels[i, j].blue));
+                }
+            }
+
+            return this;
+        }
 
         }
     }

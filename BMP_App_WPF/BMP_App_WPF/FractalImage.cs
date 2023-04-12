@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace BMP_Console
+namespace BMP_App_WPF
 {
     class FractalImage : MyImage
     {
@@ -18,7 +19,7 @@ namespace BMP_Console
 
         public void Compute_Mandelbrot(int maxIterations, PixelRGB color)
         {
-            for(int i = 0; i < Width; i++)
+            for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
@@ -26,38 +27,6 @@ namespace BMP_Console
                     bool diverging = false;
 
                     ComplexNumber z = new ComplexNumber(0, 0);
-
-                    int iterations = 0;
-                    while(!diverging && iterations < maxIterations)
-                    {
-                        iterations++;
-
-                        z = (z * z) + c;
-    
-                        if(z.abs > threshold)
-                        {
-                            diverging = true;
-                        }
-                    }
-
-                    if (!diverging)
-                    {
-                        imagePixels[i, j] = color;
-                    }
-                }
-            }
-        }
-
-        public void Compute_Julia(int maxIterations, PixelRGB color)
-        {
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    ComplexNumber z = new ComplexNumber(((i - 2000) / (double)1000), ((j - 2000) / (double)1000));
-                    bool diverging = false;
-
-                    ComplexNumber c = new ComplexNumber(-0.4, 0.6);
 
                     int iterations = 0;
                     while (!diverging && iterations < maxIterations)
@@ -72,7 +41,7 @@ namespace BMP_Console
                         }
                     }
 
-                    if(!diverging)
+                    if (!diverging)
                     {
                         imagePixels[i, j] = color;
                     }
@@ -80,14 +49,46 @@ namespace BMP_Console
             }
         }
 
-        public void Julia()
+        public void Compute_Julia(int maxIterations, PixelRGB color, double cr, double ci)
         {
-            PixelRGB[] colorScheme = new PixelRGB[] {new PixelRGB(254, 135, 135), new PixelRGB(250, 179, 64), new PixelRGB(109, 153, 162), new PixelRGB(2, 128, 143), new PixelRGB(18, 76, 96) };
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    ComplexNumber z = new ComplexNumber((i - 2000) / (double)1000, (j - 2000) / (double)1000);
+                    bool diverging = false;
+
+                    ComplexNumber c = new ComplexNumber(cr, ci);
+
+                    int iterations = 0;
+                    while (!diverging && iterations < maxIterations)
+                    {
+                        iterations++;
+
+                        z = (z * z) + c;
+
+                        if (z.abs > threshold)
+                        {
+                            diverging = true;
+                        }
+                    }
+
+                    if (!diverging)
+                    {
+                        imagePixels[i, j] = color;
+                    }
+                }
+            }
+        }
+
+        public void Julia(double cr, double ci)
+        {
+            PixelRGB[] colorScheme = new PixelRGB[] { new PixelRGB(254, 135, 135), new PixelRGB(250, 179, 64), new PixelRGB(109, 153, 162), new PixelRGB(2, 128, 143), new PixelRGB(18, 76, 96) };
             int[] detailLevels = new int[] { 2, 4, 8, 12, 100 };
-            for(int i = 0; i < colorScheme.Length; i++)
+            for (int i = 0; i < colorScheme.Length; i++)
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                Compute_Julia(detailLevels[i], colorScheme[i]);
+                Compute_Julia(detailLevels[i], colorScheme[i], cr, ci);
 
                 watch.Stop();
                 Console.WriteLine(watch.ElapsedMilliseconds);

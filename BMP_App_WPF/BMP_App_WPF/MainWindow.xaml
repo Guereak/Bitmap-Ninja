@@ -6,7 +6,58 @@
         xmlns:local="clr-namespace:BMP_App_WPF"
         mc:Ignorable="d"
         x:Name="MainCanvas"
-        Title="MainWindow" Height="450" Width="800">
-    
-    
+        Icon="fotochoppe.ico"
+        Title="Fotochoppe" Height="450" Width="800">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Fichier">
+                <MenuItem Header="_Nouveau" Click="OpenImage_Click"/>
+                <MenuItem Header="_Ouvrir" />
+                <MenuItem Header="_Sauvegarder" />
+                <Separator />
+                <MenuItem Header="_Quitter" />
+            </MenuItem>
+        </Menu>
+
+  
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" SharedSizeGroup="sidebar"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="10,0,0,0">
+                <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <ListBox SelectionChanged="OnPageSelected">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBoxItem Name="editing" Tag="editing.xaml">Editing</ListBoxItem>
+                        <ListBoxItem Tag="steganography.xaml">Stega</ListBoxItem>
+                        <ListBoxItem Tag="fractals.xaml">Fractal</ListBoxItem>
+                    </ListBox>
+                </StackPanel>
+
+            </Grid>
+
+            <Grid>
+                <Frame Grid.Column="0" Name="SideFrame" NavigationUIVisibility="Hidden" Margin="0,0,0,-400"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+                <Image Name="DisplayImage" Margin="30"/>
+            </StackPanel>
+    </Grid>
+    </DockPanel>
+
 </Window>
