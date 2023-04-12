@@ -12,7 +12,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 
@@ -24,15 +23,19 @@ namespace BMP_App_WPF
     public partial class MainWindow : Window
     {
         public static MyImage displayedImage;
+        public static int imageIndex = -1;
 
         public MainWindow()
         {
-            displayedImage = new MyImage("../../CurrentImage.bmp");
-
-            Trace.WriteLine("TEST");
+            Directory.Delete("../../Temp", true);
+            Directory.CreateDirectory("../../Temp");
 
             InitializeComponent();
-            RefreshDisplayImage();
+
+            displayedImage = new MyImage(200, 200);
+            RefreshDisplayedImage();
+
+
             SideFrame.Navigate(new EditingPage(this));
         }
 
@@ -57,36 +60,30 @@ namespace BMP_App_WPF
 
         }
 
-        public void RefreshDisplayImage()
+        public void RefreshDisplayedImage()
         {
-            try
-            {
-                using (var fileStream = new FileStream("../../CurrentImage.bmp", FileMode.Open, FileAccess.Read))
-                {
-                    BitmapImage bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
+            imageIndex++;
+            string tempImagePath = $"../../Temp/{imageIndex}.bmp";
+            displayedImage.From_Image_To_File(tempImagePath);
 
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.StreamSource = fileStream;
+            WidthHeight.Header = $"{displayedImage.Width}x{displayedImage.Height}";
 
-                    bitmapImage.EndInit();
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            bitmap.UriSource = new Uri(tempImagePath, UriKind.Relative);
+            bitmap.EndInit();
 
-                    DisplayImage.Source = bitmapImage;
-                    DisplayImage.InvalidateVisual();
-                    DisplayImage.InvalidateArrange();
-                    DisplayImage.InvalidateMeasure();
-                }
+            DisplayImage.Source = bitmap;
 
-                Trace.WriteLine("Visual invalidated");
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Error refreshing display image: {ex.Message}");
-            }
+            DisplayImage.InvalidateVisual();
+            DisplayImage.InvalidateArrange();
+            DisplayImage.InvalidateMeasure();
         }
 
 
-
+        //Modify later
         private void OpenImage_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -98,20 +95,59 @@ namespace BMP_App_WPF
 
                 Trace.WriteLine("Opened");
 
-                MyImage img = new MyImage(imagePath);
-                img.From_Image_To_File("../../CurrentImage.bmp");
-
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.None;
-                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                bitmap.UriSource = new Uri("../../CurrentImage.bmp", UriKind.Relative);
-                bitmap.EndInit();
-
-                Image image = new Image();
-                DisplayImage.Source = bitmap;
+                displayedImage = new MyImage(imagePath);
+                RefreshDisplayedImage();
 
             }
+        }
+
+        private void NewImage_Click(object sender, RoutedEventArgs e)
+        {
+            displayedImage = new MyImage(200, 200);
+            RefreshDisplayedImage();
+        }
+
+        private void SaveImage_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Bitmap files |*.bmp; |All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string fileName = saveFileDialog.FileName;
+                displayedImage.From_Image_To_File(fileName);
+
+                Trace.WriteLine(fileName);
+            }
+        }
+
+        private void QuitApp_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            File.Delete($"../../Temp/{imageIndex}.bmp");
+
+            imageIndex--;
+
+            string tempImagePath = $"../../Temp/{imageIndex}.bmp";
+
+            WidthHeight.Header = $"{displayedImage.Width}x{displayedImage.Height}";
+
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            bitmap.UriSource = new Uri(tempImagePath, UriKind.Relative);
+            bitmap.EndInit();
+
+            DisplayImage.Source = bitmap;
+
+            DisplayImage.InvalidateVisual();
+            DisplayImage.InvalidateArrange();
+            DisplayImage.InvalidateMeasure();
         }
     }
 }

@@ -22,5 +22,6 @@
             <TextBox Name="JuliaTextBox2" PreviewTextInput="NumberInput_PreviewTextInput" Grid.Column="1" Margin="2,0,0,0" />
         </Grid>
         <Button Height="20" Margin="0,5,0,5" Click="Julia_Click">Julia</Button>
+        <Separator />
     </StackPanel>
 </Page>

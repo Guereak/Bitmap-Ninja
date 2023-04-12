@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BMP_Console
+namespace BMP_App_WPF
 {
     class Noeud
     {

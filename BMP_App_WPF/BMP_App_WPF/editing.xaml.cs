@@ -44,33 +44,25 @@ namespace BMP_App_WPF
             return false;
         }
 
-        private void OnRefreshImageButtonClick(object sender, RoutedEventArgs e)
-        {
-            _mainWindow.RefreshDisplayImage();
-        }
-
         private void Greyscale_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.ToGrayScale();
             Trace.WriteLine("GREYSCALE");
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
         }
 
         private void BlackAndWhite_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.ToBlackAndWhite();
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
             Trace.WriteLine("BLACKANDWHITE");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
         }
 
         private void Negative_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.Negative();
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
             Trace.WriteLine("NEGATIVE");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
         }
 
         private void Rotation_Click(object sender, RoutedEventArgs e)
@@ -80,8 +72,7 @@ namespace BMP_App_WPF
             {
                 MainWindow.displayedImage = MainWindow.displayedImage.Rotate((float)rotationValue);
 
-                MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
-                OnRefreshImageButtonClick(sender, e);
+                _mainWindow.RefreshDisplayedImage();
 
                 Trace.WriteLine("Rotation");
             }
@@ -99,8 +90,7 @@ namespace BMP_App_WPF
             if (Double.TryParse(AgrandissementTextBox1.Text, out agrandissementXValue) && Double.TryParse(AgrandissementTextBox2.Text, out agrandissementYValue))
             {
                 MainWindow.displayedImage = MainWindow.displayedImage.RescaleByFactor(agrandissementXValue, agrandissementYValue);
-                MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
-                OnRefreshImageButtonClick(sender, e);
+                _mainWindow.RefreshDisplayedImage();
 
                 Trace.WriteLine("Agrandissement");
             }
@@ -115,17 +105,15 @@ namespace BMP_App_WPF
         private void Horizontal_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage.Mirror_Horizontal();
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
             Trace.WriteLine("MIRROR HORIZONTAL");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
         }
 
         private void Vertical_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage.Mirror_Vertical();
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
             Trace.WriteLine("MIRROR VERTICAL");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
         }
 
 
@@ -133,11 +121,9 @@ namespace BMP_App_WPF
         private void Convolution_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.Convolution11(MyImage.convolutions[comboBox.SelectedIndex]);
-
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
             Trace.WriteLine("Convolution " + comboBox.SelectedItem);
-            OnRefreshImageButtonClick(sender, e);
 
+            _mainWindow.RefreshDisplayedImage();
         }
     }
 }

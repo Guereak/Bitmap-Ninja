@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace BMP_Console
+namespace BMP_App_WPF
 {
     class JPEG
     {
         public static void FullJpegCompression(MyImage image)
         {
-            // Step 1: Convert the image to YCbCr color space
+            // Step 1: convert to YCbCr
             PixelYCbCr[,] yCbCrPixels = ColorSpaceConversion(image);
 
-            // Step 2: Perform downsampling on the YCbCr image
+            // Step 2: Downsample chrominance
             Downsampled downsampledImage = Downsampling(yCbCrPixels);
 
-            // Step 3: Split the downsampled image into 8x8 blocks
+            // Step 3: Split into 8x8 blocks
             Blocks blocks = Split8x8(downsampledImage);
 
-            // Step 4: Apply Discrete Cosine Transform (DCT) to each block
+            // Step 4: Perform DCT on each block
             for (int i = 0; i < blocks.blockY.GetLength(0); i++)
             {
                 for (int j = 0; j < blocks.blockY.GetLength(1); j++)
@@ -28,17 +30,17 @@ namespace BMP_Console
                 }
             }
 
-            // Step 5: Quantize the DCT coefficients using the quantization matrix
+            // Step 5: Quantize the DCT coefficientss
             BlocksInt quantizedBlocks = Quantization(blocks);
 
-            // Step 6: Perform ZigZag ordering and Run-Length Encoding (RLE) on the quantized coefficients
+            // Step 6: Perform ZigZag and RLE
             int[] zigzagY = ZigZags(quantizedBlocks.blockY);
             int[] zigzagCb = ZigZags(quantizedBlocks.blockCb);
             int[] zigzagCr = ZigZags(quantizedBlocks.blockCr);
 
-            string rleY = RLE(string.Join(", ", zigzagY));
-            string rleCb = RLE(string.Join(", ", zigzagCb));
-            string rleCr = RLE(string.Join(", ", zigzagCr));
+            string rleY = RLE(string.Join("", zigzagY));
+            string rleCb = RLE(string.Join("", zigzagCb));
+            string rleCr = RLE(string.Join("", zigzagCr));
 
             Console.WriteLine(rleY);
             Console.WriteLine("----------");
@@ -46,7 +48,7 @@ namespace BMP_Console
             Console.WriteLine("----------");
             Console.WriteLine(rleCr);
 
-            // Step 7: Encode the RLE data using a suitable encoding algorithm (e.g. Huffman encoding)
+            // Step 7: Encode the RLE data using Huffman encoding
             Noeud huffmanTreeY = Huffman.BuildHuffmanTree(rleY);
             Noeud huffmanTreeCb = Huffman.BuildHuffmanTree(rleCb);
             Noeud huffmanTreeCr = Huffman.BuildHuffmanTree(rleCr);
@@ -68,6 +70,8 @@ namespace BMP_Console
             Console.WriteLine(encodedCb);
             Console.WriteLine("----------");
             Console.WriteLine(encodedCr);
+
+            // Step 8: Save the encoded data as a compressed JPEG file
         }
 
 
@@ -274,14 +278,14 @@ namespace BMP_Console
 
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
-                for(int j = 0; j < matrix.GetLength(1); j++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
                 {
                     //Recontruct 2D matrix
                     int[,] zigzagmatrix = new int[8, 8];
 
-                    for(int k = 0; k < 8; k++)
+                    for (int k = 0; k < 8; k++)
                     {
-                        for(int l = 0; l < 8; l++)
+                        for (int l = 0; l < 8; l++)
                         {
                             zigzagmatrix[k, l] = matrix[i, j, k, l];
                         }
@@ -307,7 +311,7 @@ namespace BMP_Console
 
             while (k < 64)
             {
-                result[k++] = matrix[i, j] < 0 ? 0 : matrix[i,j];
+                result[k++] = matrix[i, j] < 0 ? 0 : matrix[i, j];
 
                 if (directionUp)
                 {
@@ -347,16 +351,7 @@ namespace BMP_Console
 
         }
 
-        public static int[,] test = { { 140, 144, 147, 140, 140, 155, 179, 175 },
-                                      {144, 152, 140, 147, 140, 148, 167, 179 },
-                                      {152, 155, 136, 167, 163, 162, 152, 172},
-                                      { 168, 145, 156, 160, 152, 155, 136, 160 },
-                                      { 162, 148, 156, 148, 140, 136, 147, 162},
-                                      { 147, 167, 140, 155, 155, 140, 136, 162},
-                                      { 136, 156, 123, 167, 162, 144, 140, 147},
-                                      { 148, 155, 136, 155, 152, 147, 147, 136} };
-
-        static int[,] Quantification_Matrix = { {3, 5, 7, 9, 11, 13, 15, 17},
+        private static int[,] Quantification_Matrix = { {3, 5, 7, 9, 11, 13, 15, 17},
                                                 {5, 7, 9, 11, 13, 15, 17, 19},
                                                 {7, 9, 11, 13, 15, 17, 19, 21},
                                                 {9, 11, 13, 15, 17, 19, 21, 23},

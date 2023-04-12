@@ -11,13 +11,15 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Fichier">
-                <MenuItem Header="_Nouveau" Click="OpenImage_Click"/>
-                <MenuItem Header="_Ouvrir" />
-                <MenuItem Header="_Sauvegarder" />
+            <MenuItem Header="Fichier">
+                <MenuItem Header="Nouveau" Click="NewImage_Click"/>
+                <MenuItem Header="Ouvrir" Click="OpenImage_Click"/>
+                <MenuItem Header="Sauvegarder" Click="SaveImage_Click"/>
                 <Separator />
-                <MenuItem Header="_Quitter" />
+                <MenuItem Header="Quitter" Click="QuitApp_Click"/>
             </MenuItem>
+            <MenuItem Header="Annuler" Click="Undo_Click"/>
+            <MenuItem Name="WidthHeight" Header="" IsHitTestVisible="False" />
         </Menu>
 
   

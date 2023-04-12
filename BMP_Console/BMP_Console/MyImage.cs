@@ -131,7 +131,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    imagePixels[i, j] = new PixelRGB(0, 0, 0);
+                    imagePixels[i, j] = new PixelRGB(255, 255, 255);
                 }
             }
         }
@@ -517,6 +517,51 @@ namespace BMP_Console
             return this;
         }
 
+        public MyImage Maths(int a, int b)
+        {
+            PixelRGB[,] pixels = new PixelRGB[200, 200];
+
+            for(double x = -10; x < 10; x+= 0.1)
+            {
+                if(a * x + b > -10 && a *x + b < 10)
+                {
+                    double nplus1 = a * (x + 0.1) + b;
+                    double nminus1 = a * (x - 0.1) + b;
+
+                    if(nplus1 > -10 & nplus1 < 10 & nminus1 > -10 & nminus1 < 10)
+                    {
+                        int nmax = (int)((nplus1 + 10) * 10);
+                        int nmin = (int)((nminus1 + 10) * 10);
+
+                        for (int i = Math.Min(nmax, nmin); i < Math.Max(nmax, nmin); i++)
+                        {
+                        pixels[(int)((x + 10) * 10), i] = new PixelRGB(0, 0, 0);
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < 200; i++) // We fill the rest with white
+            {
+                for (int j = 0; j < 200; j++)
+                {
+                    if (pixels[i, j] == null)
+                    {
+                        pixels[i, j] = new PixelRGB(255, 255, 255);
+                    }
+                }
+            }
+
+            MyImage ImageMathRepresentation = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), pixels);
+            return ImageMathRepresentation;
         }
+
+
+
+
+
+
+        //public void Maths();
     }
+}
 

@@ -48,8 +48,7 @@ namespace BMP_App_WPF
             int slVal = (int)slValue2.Value;
 
             MainWindow.displayedImage = Steganography.RestoreHidden(MainWindow.displayedImage, slVal);
-            MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
-            OnRefreshImageButtonClick(sender, e);
+            _mainWindow.RefreshDisplayedImage();
 
             Trace.WriteLine("Stega restore");
         }
@@ -60,8 +59,7 @@ namespace BMP_App_WPF
             try
             {
                 MainWindow.displayedImage = Steganography.Hide(MainWindow.displayedImage, new MyImage(txtFilePath.Text), slVal);
-                MainWindow.displayedImage.From_Image_To_File("../../CurrentImage.bmp");
-                OnRefreshImageButtonClick(sender, e);
+                _mainWindow.RefreshDisplayedImage();
 
                 Trace.WriteLine("Stega hide");
             }
@@ -70,11 +68,6 @@ namespace BMP_App_WPF
                 Trace.WriteLine(ex.Message);
                 Trace.WriteLine("The file path provided was not correct");
             }
-        }
-
-        private void OnRefreshImageButtonClick(object sender, RoutedEventArgs e)
-        {
-            _mainWindow.RefreshDisplayImage();
         }
     }
 }

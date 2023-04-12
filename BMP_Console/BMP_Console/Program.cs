@@ -19,7 +19,9 @@ namespace BMP_Console
             //
             //Huffman.PrintDict(Huffman.BinaryToHuffmanTable(huff));
 
-            TestCompression();
+            //TestCompression();
+
+            TestMathFunctionRepresentationInnov();
 
             //TestRGBYCbCr();
 
@@ -38,6 +40,13 @@ namespace BMP_Console
             Console.ReadKey();
         }
 
+        static void TestMathFunctionRepresentationInnov()
+        {
+            MyImage rep = new MyImage(200, 200);
+            MyImage res = rep.Maths(-2, 2);
+
+            res.From_Image_To_File("../../OutputImages/Rep.bmp");
+        }
         static void TestGrayScale()
         {
             MyImage img = new MyImage("../../SampleImages/test2.bmp");

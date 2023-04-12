@@ -68,10 +68,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ComplexNumber.cs" />
-    <Compile Include="FractalImage.cs" />
     <Compile Include="fractals.xaml.cs">
       <DependentUpon>fractals.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Huffman.cs" />
+    <Compile Include="JPEG.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -90,7 +91,9 @@
     <Compile Include="editing.xaml.cs">
       <DependentUpon>editing.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Noeud.cs" />
     <Compile Include="PixelRGB.cs" />
+    <Compile Include="PixelYCbCr.cs" />
     <Compile Include="Steganography.cs" />
     <Compile Include="steganography.xaml.cs">
       <DependentUpon>steganography.xaml</DependentUpon>

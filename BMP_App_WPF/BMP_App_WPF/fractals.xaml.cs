@@ -49,25 +49,17 @@ namespace BMP_App_WPF
             return false;
         }
 
-        private void OnRefreshImageButtonClick(object sender, RoutedEventArgs e)
-        {
-            _mainWindow.RefreshDisplayImage();
-        }
-
         private void Julia_Click(object sender, RoutedEventArgs e)
         {
-            FractalImage fractal = new FractalImage(4000, 4000);
-
             double cr;
             double ci;
 
             if (Double.TryParse(JuliaTextBox1.Text, out cr) && Double.TryParse(JuliaTextBox2.Text, out ci))
             {
-                Trace.WriteLine("Fractal process started");
-                fractal.Julia(cr, ci);
+                MainWindow.displayedImage = new MyImage(4000, 4000);
+                MainWindow.displayedImage.Julia(cr, ci);
                 Trace.WriteLine("Fractal process ended");
-                fractal.From_Image_To_File("../../CurrentImage.bmp");
-                OnRefreshImageButtonClick(sender, e);
+                _mainWindow.RefreshDisplayedImage();
             }
             else
             {
@@ -79,10 +71,9 @@ namespace BMP_App_WPF
 
         private void Mandelbrot_Click(object sender, RoutedEventArgs e)
         {
-            FractalImage fractal = new FractalImage(4000, 4000);
-            fractal.Mandelbrot();
-            fractal.From_Image_To_File("../../CurrentImage.bmp");
-            OnRefreshImageButtonClick(sender, e);
+            MainWindow.displayedImage = new MyImage(4000, 4000);
+            MainWindow.displayedImage.Mandelbrot();
+            _mainWindow.RefreshDisplayedImage();
         }
     }
 }
