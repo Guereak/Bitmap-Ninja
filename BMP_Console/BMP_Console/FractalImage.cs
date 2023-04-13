@@ -16,13 +16,13 @@ namespace BMP_Console
 
         int threshold = 2;
 
-        public void Compute_Mandelbrot(int maxIterations, Pixel color)
+        public void Compute_Mandelbrot(int maxIterations, PixelRGB color)
         {
             for(int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    ComplexNumber c = new ComplexNumber(((i - 2000) / (double)1000), ((j - 2000) / (double)1000));
+                    ComplexNumber c = new ComplexNumber((i - 2000) / (double)1000, (j - 2000) / (double)1000);
                     bool diverging = false;
 
                     ComplexNumber z = new ComplexNumber(0, 0);
@@ -33,7 +33,7 @@ namespace BMP_Console
                         iterations++;
 
                         z = (z * z) + c;
-
+    
                         if(z.abs > threshold)
                         {
                             diverging = true;
@@ -48,7 +48,7 @@ namespace BMP_Console
             }
         }
 
-        public void Compute_Julia(int maxIterations, Pixel color)
+        public void Compute_Julia(int maxIterations, PixelRGB color)
         {
             for (int i = 0; i < Width; i++)
             {
@@ -82,7 +82,7 @@ namespace BMP_Console
 
         public void Julia()
         {
-            Pixel[] colorScheme = new Pixel[] {new Pixel(254, 135, 135), new Pixel(250, 179, 64), new Pixel(109, 153, 162), new Pixel(2, 128, 143), new Pixel(18, 76, 96) };
+            PixelRGB[] colorScheme = new PixelRGB[] {new PixelRGB(254, 135, 135), new PixelRGB(250, 179, 64), new PixelRGB(109, 153, 162), new PixelRGB(2, 128, 143), new PixelRGB(18, 76, 96) };
             int[] detailLevels = new int[] { 2, 4, 8, 12, 100 };
             for(int i = 0; i < colorScheme.Length; i++)
             {
@@ -96,7 +96,7 @@ namespace BMP_Console
 
         public void Mandelbrot()
         {
-            Pixel[] colorScheme = new Pixel[] { new Pixel(255, 141, 112), new Pixel(252, 170, 130), new Pixel(115, 162, 172), new Pixel(11, 93, 105) };
+            PixelRGB[] colorScheme = new PixelRGB[] { new PixelRGB(255, 141, 112), new PixelRGB(252, 170, 130), new PixelRGB(115, 162, 172), new PixelRGB(11, 93, 105) };
             int[] detailLevels = new int[] { 2, 4, 14, 255 };
             for (int i = 0; i < colorScheme.Length; i++)
             {

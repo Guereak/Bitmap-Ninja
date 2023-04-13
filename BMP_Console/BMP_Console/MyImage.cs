@@ -7,7 +7,7 @@ namespace BMP_Console
     partial class MyImage
     {
         #region properties
-        protected Pixel[,] imagePixels;
+        protected PixelRGB[,] imagePixels;
 
         //Header properties
         string imageType;
@@ -34,7 +34,7 @@ namespace BMP_Console
         #endregion properties
 
         #region access_control
-        public Pixel[,] ImagePixels
+        public PixelRGB[,] ImagePixels
         {
             get { return imagePixels; }
             set { imagePixels = value; }
@@ -50,6 +50,15 @@ namespace BMP_Console
         {
             get { return height; }
             set { height = value; }
+        }
+        public int FileSize
+        {
+            get { return fileSize; }
+        }
+
+        public int ImageSize
+        {
+            get { return imageSize; }
         }
 
         public int FileSize
@@ -98,15 +107,22 @@ namespace BMP_Console
             bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
-            //Populate imageBytes
-            imageBytes = new byte[fileBytes.Length - imgOffset];
+            imagePixels = new PixelRGB[width, height];
+            //Populate pixels
+            imagePixels = new PixelRGB[width, height];
 
-            for (int i = imgOffset; i < fileBytes.Length; i++)
-                imageBytes[i - imgOffset] = fileBytes[i];
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    PixelRGB p = new PixelRGB(fileBytes[j * 3 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 1 + i * bytesPerLine + imgOffset], fileBytes[j * 3 + 2 + i * bytesPerLine + imgOffset]);
+
+                    imagePixels[j, i] = p;
+                }
+            }
         }
 
-
-        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, byte[] imageBytes)
+        public MyImage(byte[] headerBytes, byte[] headerInfoBytes, PixelRGB[,] pixels)
         {
             this.imagePixels = pixels;
 
@@ -116,7 +132,7 @@ namespace BMP_Console
         //Used to generate a blank image
         public MyImage(int width, int height)
         {
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
 
             imageType = "BM";
             this.width = width;
@@ -127,7 +143,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                    imagePixels[i, j] = new PixelRGB(255, 255, 255);
                 }
             }
         }
@@ -140,13 +156,13 @@ namespace BMP_Console
             height = 4000;
             bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
-            imagePixels = new Pixel[width, height];
+            imagePixels = new PixelRGB[width, height];
 
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
                 {
-                    imagePixels[i, j] = new Pixel(0, 0, 0);
+                    imagePixels[i, j] = new PixelRGB(0, 0, 0);
                 }
             }
         }
@@ -244,16 +260,9 @@ namespace BMP_Console
             {
                 for (int j = 0; j < width; j++)
                 {
-                    try
-                    {
-                        newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
-                        newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
-                        newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(i * bytesPerLine + j * 3);
-                    }
+                    newImageBytes[i * bytesPerLine + j * 3] = imagePixels[j, i].red;
+                    newImageBytes[i * bytesPerLine + j * 3 + 1] = imagePixels[j, i].green;
+                    newImageBytes[i * bytesPerLine + j * 3 + 2] = imagePixels[j, i].blue;
                 }
             }
             File.WriteAllBytes(path, BuildHeader(fileSize)
@@ -267,9 +276,8 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height; j++)
                 {
-                    int r = imageBytes[i * bytesPerLine + j];
-                    int g = imageBytes[i * bytesPerLine + j + 1];
-                    int b = imageBytes[i * bytesPerLine + j + 2];
+                    PixelRGB p = imagePixels[i, j];
+                    int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
 
                     int grey = Convert.ToInt32(0.299 * r + 0.587 * g + 0.114 * b);
 
@@ -308,7 +316,7 @@ namespace BMP_Console
             int newWidth = (int)(width * xFactor);
             int newHeight = (int)(height * yFactor);
 
-            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+            PixelRGB[,] newPixels = new PixelRGB[newWidth, newHeight];
 
             for (int i = 0; i < newHeight; i++)
             {
@@ -325,18 +333,68 @@ namespace BMP_Console
         }
 
 
-        public MyImage Rotate(double rotationAngle) // Angle in degree
+
+
+
+        public MyImage RotateV3(float rotationAngle) // Angle in degree
         {
-            double rotationAngleRadian = (2 * Math.PI / 360); // Converting the angle in radiant.
-            int newWidth = (int)(this.width * Math.Cos(rotationAngleRadian) + this.height * Math.Sin(rotationAngleRadian));
-            int newHeight = (int)(this.height * Math.Cos(rotationAngleRadian) - this.width * Math.Sin(rotationAngleRadian));
-            Pixel[,] newPixels = new Pixel[newWidth, newHeight];
+            float rotationAngleRadian = (float)(2 * Math.PI * (-1) * rotationAngle / 360); // Converting the angle in radiant.
+            uint newWidth = (uint)Math.Ceiling(Math.Abs(Width * Math.Cos(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Sin(rotationAngle * Math.PI / 180)));
+            uint newHeight = (uint)Math.Ceiling(Math.Abs(Width * Math.Sin(rotationAngle * Math.PI / 180)) + Math.Abs(Height * Math.Cos(rotationAngle * Math.PI / 180)));
+            PixelRGB[,] imageRotated = new PixelRGB[newWidth, newHeight]; // new image rotated
+            float newCos = (float)Math.Cos(rotationAngleRadian);
+            float newSin = (float)Math.Sin(rotationAngleRadian);
+            PixelRGB origin = ImagePixels[0, 0]; // Ã  remove
+                                              //Pixel rightOrigin = ImagePixels[0, Get.];
 
-            Pixel origin = ImagePixels[0, 0];
-            //Pixel rightOrigin = ImagePixels[0, Get.];
+            // R=Right, L=Left, U=Up, D=Down, N=New
 
-            //return new MyImage(headerBytes, headerInfoBytes, newPixels);
-            return null;
+            PixelRGB nUL = imagePixels[0, 0];
+
+            float Point1x = height * newSin;
+            float Point1y = height * newCos;
+            float Point2x = width * newCos - height * newSin;
+            float Point2y = height * newCos + width * newSin;
+            float Point3x = width * newCos;
+            float Point3y = width * newSin;
+
+
+            float maxx = Math.Max(0, Math.Max(Point1x, Math.Max(Point2x, Point3x))); //We proceed to determine the maximum coordinates.
+            float maxy = Math.Max(0, Math.Max(Point1y, Math.Max(Point2y, Point3y)));
+            float minx = Math.Min(0, Math.Min(Point1x, Math.Min(Point2x, Point3x))); // We proceed to determine the minimum coordinates.
+            float miny = Math.Min(0, Math.Min(Point1y, Math.Min(Point2y, Point3y)));
+
+
+
+
+
+            for (int i = 0; i < newWidth; i++)
+            {
+                for (int j = 0; j < newHeight; j++)
+                {
+
+
+                    float originImageX = (i - newWidth / 2) * newCos - (j - newHeight / 2) * newSin + (width / 2);
+                    float originImageY = (i - newWidth / 2) * newSin + (j - newHeight / 2) * newCos + (height / 2);
+                    /*
+                    int originImageY = (int)((j + miny) * newCos - (i + minx) * newSin);
+
+                    int originImageX = (int)((i + minx) * newCos + (j + miny) * newSin);
+                    */
+
+                    if (originImageX >= 0 && originImageX < width && originImageY >= 0 && originImageY < height)
+                    {
+                        imageRotated[i, j] = imagePixels[(int)originImageX, (int)originImageY];
+                    }
+                    else
+                    {
+                        imageRotated[i, j] = new PixelRGB(0, 0, 0);
+                    }
+                }
+            }
+
+            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo((int)newWidth, (int)newHeight, imageSize), imageRotated);
+
         }
 
         public void Mirror_Horizontal()
@@ -345,7 +403,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < width / 2; j++)
                 {
-                    Pixel p = imagePixels[j, i];
+                    PixelRGB p = imagePixels[j, i];
                     imagePixels[j, i] = imagePixels[width - j - 1, i];
                     imagePixels[width - j - 1, i] = p;
                 }
@@ -358,7 +416,7 @@ namespace BMP_Console
             {
                 for (int j = 0; j < height / 2; j++)
                 {
-                    Pixel p = imagePixels[i, j];
+                    PixelRGB p = imagePixels[i, j];
                     imagePixels[i, j] = imagePixels[i, height - j - 1];
                     imagePixels[i, height - j - 1] = p;
                 }
@@ -372,45 +430,142 @@ namespace BMP_Console
         public static int[,] pushback = new int[,] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
         public static int[,] bordDetection = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
 
-        public MyImage Conv(int[,] conv)
+
+
+
+
+        public MyImage Convolution11(int[,] conv)
         {
-            //FIX TRES TEMPORAIRE C'EST MOYEN
-            Pixel[,] imageModified = imagePixels;
 
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
+            PixelRGB[,] imageModified = new PixelRGB[width, height];
+            int convHeight = conv.GetLength(1);
+            int convWidth = conv.GetLength(0);
+            //Used for the edge pixels
+            int ignoredPixX = convWidth / 2;
+            int ignoredPixY = convHeight / 2;
+
+            //image 
+           
+            //Création d'une nouvelle image pour stocker le résultat
+                //Boucle à travers chaque pixel de l'image
+                for (int x = 0; x < width; x++)
                 {
-                    //Calcul de la nouvelle valeur du pixel en appliquant la matrice de convolution
-                    int newValueR = 0;
-                    int newValueG = 0;
-                    int newValueB = 0;
+                    for (int y = 0; y < height; y++)
 
-                    for (int i = -1; i <= 1; i++)
                     {
-                        for (int j = -1; j <= 1; j++)
+                        int newValueR = 0;
+                        int newValueG = 0;
+                        int newValueB = 0;
+
+                        //conv 
+                        for (int i = 0; i < convWidth; i++)
                         {
-                            Pixel pixelOrigin = ImagePixels[x + i, y + j];
-                            newValueR += conv[i + 1, j + 1] * pixelOrigin.red;
-                            newValueG += conv[i + 1, j + 1] * pixelOrigin.green;
-                            newValueB += conv[i + 1, j + 1] * pixelOrigin.blue;
+                            for (int j = 0; j < convHeight; j++)
+                            {
+                                //coordinates calculus
+                                int pixelX = x + i - ignoredPixX;
+                                int pixelY = y + j - ignoredPixY;
+
+                                //Edge treated using the reflexion method
+
+                                if (pixelX < 0)
+                                {
+                                    pixelX = -pixelX;
+                                }
+
+                                else if (pixelX >= width)
+                                {
+                                    pixelX = 2 * (width - 1) - pixelX;
+                                }
+
+                                if (pixelY < 0)
+                                {
+                                    pixelY = -pixelY;
+                                }
+
+                                else if (pixelY >= height)
+                                {
+                                    pixelY = 2 * (height - 1) - pixelY;
+                                }
+
+
+
+                                PixelRGB pixel = ImagePixels[pixelX, pixelY];
+                                newValueR += conv[i, j] * pixel.red;
+                                newValueG += conv[i, j] * pixel.green;
+                                newValueB += conv[i, j] * pixel.blue;
+
+
+                            }
                         }
+
+                        PixelRGB pixelModified = new PixelRGB((byte)Math.Max(Math.Min(newValueR, 255), 0), (byte)Math.Max(Math.Min(newValueG, 255), 0), (byte)Math.Max(Math.Min(newValueB, 255), 0));
+
+                        imageModified[x, y] = pixelModified;
                     }
+                }
 
-                    //On s'assure que la valeur reste dans la plage de couleurs de 0 à 255
-                    byte newRedvalue = (byte)Math.Max(Math.Min(newValueR, 255), 0);
-                    byte newGreenvalue = (byte)Math.Max(Math.Min(newValueG, 255), 0);
-                    byte newBluevalue = (byte)Math.Max(Math.Min(newValueB, 255), 0);
+                MyImage ImageConv = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
 
+                return ImageConv;
+            }
 
-                    //Création du nouveau pixel avec la valeur calculée
-                    Pixel pixelModified = new Pixel(newRedvalue, newGreenvalue, newBluevalue);
-
-                    //On affecte le nouveau pixel à l'image résultante
-                    imageModified[x - 1, y - 1] = pixelModified;
+        public MyImage Negative()
+        {
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    imagePixels[i, j] = new PixelRGB((byte)(255 - (int)imagePixels[i, j].red), (byte)(255 - (int)imagePixels[i, j].green), (byte)(255 - (int)imagePixels[i, j].blue));
                 }
             }
-            return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imageModified);
+
+            return this;
+        }
+
+        public MyImage Maths(int a, int b, int c, int d)
+        {
+            PixelRGB[,] pixels = new PixelRGB[200, 200];
+
+            for(double x = -10; x < 10; x+= 0.1)
+            {
+                if(a * x * x *x  + b * x * x + c * x + d > -10 && a * x * x * x + b * x * x + c * x + d < 10)
+                {
+                    double nplus1 = a * (x + 0.1) * (x + 0.1) * (x + 0.1) + b * (x + 0.1) * (x + 0.1) + c * (x + 0.1) + d;
+                    double nminus1 = a * (x - 0.1) * (x - 0.1) * (x - 0.1) + b * (x - 0.1) * (x - 0.1) + c * (x - 0.1) + d;
+
+                    if(nplus1 > -10 & nplus1 < 10 & nminus1 > -10 & nminus1 < 10)
+                    {
+                        int nmax = (int)((nplus1 + 10) * 10);
+                        int nmin = (int)((nminus1 + 10) * 10);
+
+                        for (int i = Math.Min(nmax, nmin); i < Math.Max(nmax, nmin); i++)
+                        {
+                        pixels[(int)((x + 10) * 10), i] = new PixelRGB(0, 0, 0);
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < 200; i++) // We fill the rest with white
+            {
+                for (int j = 0; j < 200; j++)
+                {
+                    if (pixels[i, j] == null)
+                    {
+                        pixels[i, j] = new PixelRGB(255, 255, 255);
+                    }
+                }
+            }
+
+            MyImage ImageMathRepresentation = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), pixels);
+            return ImageMathRepresentation;
+        }
+
+        public void Maths()
+        {
+
         }
     }
 }
+

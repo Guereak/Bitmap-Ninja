@@ -6,17 +6,60 @@
         xmlns:local="clr-namespace:BMP_App_WPF"
         mc:Ignorable="d"
         x:Name="MainCanvas"
-        Title="MainWindow" Height="450" Width="800">
+        Icon="fotochoppe.ico"
+        Title="Fotochoppe" Height="450" Width="800">
 
-    <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="False"  DockPanel.Dock="Left" Width="200">
-            <Button Content="Greyscale" DockPanel.Dock="Top" Click="Greyscale_Click" />
-            <Button Content="Black and White" DockPanel.Dock="Top" Click="BlackAndWhite_Click" />
-            <Button Content="Safwan's mom" DockPanel.Dock="Top" />
-        </DockPanel>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Fichier">
+                <MenuItem Header="Nouveau" Click="NewImage_Click"/>
+                <MenuItem Header="Ouvrir" Click="OpenImage_Click"/>
+                <MenuItem Header="Sauvegarder" Click="SaveImage_Click"/>
+                <Separator />
+                <MenuItem Header="Quitter" Click="QuitApp_Click"/>
+            </MenuItem>
+            <MenuItem Header="Annuler" Click="Undo_Click"/>
+            <MenuItem Name="WidthHeight" Header="" IsHitTestVisible="False" />
+        </Menu>
 
-        <Image Source="/SampleImages/lac.bmp"/>
+  
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" SharedSizeGroup="sidebar"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="10,0,0,0">
+                <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <ListBox SelectionChanged="OnPageSelected">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBoxItem Name="editing" Tag="editing.xaml">Modifier</ListBoxItem>
+                        <ListBoxItem Tag="steganography.xaml">Stega</ListBoxItem>
+                            <ListBoxItem Tag="fractals.xaml">Plus</ListBoxItem>
+                    </ListBox>
+                </StackPanel>
+
+            </Grid>
+
+            <Grid>
+                <Frame Grid.Column="0" Name="SideFrame" NavigationUIVisibility="Hidden" Margin="0,0,0,-400"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+                <Image Name="DisplayImage" Margin="30"/>
+            </StackPanel>
+    </Grid>
     </DockPanel>
-
 
 </Window>
