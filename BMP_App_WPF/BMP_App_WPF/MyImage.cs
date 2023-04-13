@@ -136,7 +136,6 @@ namespace BMP_App_WPF
             }
         }
 
-        //Used to generate a blank image of 2000x2000, for fractals
         public MyImage()
         {
             imageType = "BM";
@@ -370,11 +369,6 @@ namespace BMP_App_WPF
 
                     float originImageX = (i - newWidth / 2) * newCos - (j - newHeight / 2) * newSin + (width / 2);
                     float originImageY = (i - newWidth / 2) * newSin + (j - newHeight / 2) * newCos + (height / 2);
-                    /*
-                    int originImageY = (int)((j + miny) * newCos - (i + minx) * newSin);
-
-                    int originImageX = (int)((i + minx) * newCos + (j + miny) * newSin);
-                    */
 
                     if (originImageX >= 0 && originImageX < width && originImageY >= 0 && originImageY < height)
                     {

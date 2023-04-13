@@ -80,10 +80,10 @@ namespace BMP_App_WPF
             DisplayImage.InvalidateVisual();
             DisplayImage.InvalidateArrange();
             DisplayImage.InvalidateMeasure();
+
+            this.SizeToContent = SizeToContent.Height;
         }
 
-
-        //Modify later
         private void OpenImage_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
