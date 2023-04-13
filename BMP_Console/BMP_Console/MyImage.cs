@@ -31,7 +31,6 @@ namespace BMP_Console
         //The following are handeled by PopulateHeadersProperties method
         int bytesPerLine;
 
-
         #endregion properties
 
         #region access_control
@@ -62,6 +61,15 @@ namespace BMP_Console
             get { return imageSize; }
         }
 
+        public int FileSize
+        {
+            get { return fileSize; }
+        }
+
+        public int ImageSize
+        {
+            get { return imageSize; }
+        }
         #endregion access_control
 
         #region constructors
@@ -93,7 +101,11 @@ namespace BMP_Console
             for (int i = 14; i < 14 + DIMSize; i++)
                 headerInfoBytes[i - 14] = fileBytes[i];
 
-            PopulateHeaderProperties(headerBytes, headerInfoBytes);
+            //Populate other properties
+            width = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[4], headerInfoBytes[5], headerInfoBytes[6], headerInfoBytes[7] });
+            height = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[8], headerInfoBytes[9], headerInfoBytes[10], headerInfoBytes[11] });
+            bitsPerPixel = Convertir_Endian_To_Int(new byte[] { headerInfoBytes[14], headerInfoBytes[15] });
+            bytesPerLine = (int)Math.Ceiling(bitsPerPixel * width / 32.0) * 4;
 
             imagePixels = new PixelRGB[width, height];
             //Populate pixels
@@ -212,7 +224,6 @@ namespace BMP_Console
 
         #endregion sync
 
-
         public static int Convertir_Endian_To_Int(byte[] bytes)
         {
             int value = 0;
@@ -268,15 +279,18 @@ namespace BMP_Console
                     PixelRGB p = imagePixels[i, j];
                     int grey = Convert.ToInt32(0.299 * p.red + 0.587 * p.green + 0.114 * p.blue);
 
-                    p.red = Convert.ToByte(grey);
-                    p.green = Convert.ToByte(grey);
-                    p.blue = Convert.ToByte(grey);
+                    int grey = Convert.ToInt32(0.299 * r + 0.587 * g + 0.114 * b);
+
+                    newImageBytes[i * bytesPerLine + j] = Convert.ToByte(grey);
+                    newImageBytes[i * bytesPerLine + j + 1] = Convert.ToByte(grey);
+                    newImageBytes[i * bytesPerLine + j + 2] = Convert.ToByte(grey);
+
+                    j += 3;
                 }
             }
 
             return new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), imagePixels);
         }
-
 
         public MyImage ToBlackAndWhite()
         {
@@ -284,25 +298,17 @@ namespace BMP_Console
 
             for (int i = 0; i < im.width; i++)
             {
-                for (int j = 0; j < im.height; j++)
+                if (image.imageBytes[i] >= 64)      //Adapt treshold
                 {
-
-                    if (im.imagePixels[i, j].red < 64)
-                    {
-                        im.imagePixels[i, j].red = 0;
-                        im.imagePixels[i, j].green = 0;
-                        im.imagePixels[i, j].blue = 0;
-                    }
-                    else
-                    {
-                        im.imagePixels[i, j].red = 255;
-                        im.imagePixels[i, j].green = 255;
-                        im.imagePixels[i, j].blue = 255;
-                    }
+                    image.imageBytes[i] = 255;
+                }
+                else
+                {
+                    image.imageBytes[i] = 0;
                 }
             }
 
-            return im;
+            return image;
         }
 
         public MyImage RescaleByFactor(double xFactor, double yFactor)
