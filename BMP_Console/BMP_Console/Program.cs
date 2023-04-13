@@ -43,7 +43,7 @@ namespace BMP_Console
         static void TestMathFunctionRepresentationInnov()
         {
             MyImage rep = new MyImage(200, 200);
-            MyImage res = rep.Maths(-2, 2);
+            MyImage res = rep.Maths(-2, 2, -3, 1);
 
             res.From_Image_To_File("../../OutputImages/Rep.bmp");
         }

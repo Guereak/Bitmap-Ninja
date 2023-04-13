@@ -61,7 +61,6 @@ namespace BMP_App_WPF
         {
             get { return imageSize; }
         }
-
         #endregion access_control
 
         #region constructors
@@ -518,6 +517,56 @@ namespace BMP_App_WPF
             return this;
         }
 
+        public MyImage Maths(int a, int b, int c, int d)
+        {
+            PixelRGB[,] pixels = new PixelRGB[200, 200];
+
+            for (int i = 0; i < 200; i++)
+            {
+                for (int j = 0; j < 200; j++)
+                {
+                    if (j == 100 || i == 100)
+                    {
+                        pixels[i, j] = new PixelRGB(128, 128, 128);
+                    }
+                }
+            }
+
+            for (double x = -10; x < 10; x += 0.1)
+            {
+                if (a * x * x * x + b * x * x + c * x + d > -10 && a * x * x * x + b * x * x + c * x + d < 10)
+                {
+                    double nplus1 = a * (x + 0.1) * (x + 0.1) * (x + 0.1) + b * (x + 0.1) * (x + 0.1) + c * (x + 0.1) + d;
+                    double nminus1 = a * (x - 0.1) * (x - 0.1) * (x - 0.1) + b * (x - 0.1) * (x - 0.1) + c * (x - 0.1) + d;
+
+                    if (nplus1 > -10 & nplus1 < 10 & nminus1 > -10 & nminus1 < 10)
+                    {
+                        int nmax = (int)((nplus1 + 10) * 10);
+                        int nmin = (int)((nminus1 + 10) * 10);
+
+                        for (int i = Math.Min(nmax, nmin); i < Math.Max(nmax, nmin); i++)
+                        {
+                            pixels[(int)((x + 10) * 10), i] = new PixelRGB(0, 0, 0);
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < 200; i++) // We fill the rest with white
+            {
+                for (int j = 0; j < 200; j++)
+                {
+                    if (pixels[i, j] == null)
+                    {
+                        pixels[i, j] = new PixelRGB(255, 255, 255);
+                    }
+                }
+            }
+
+            MyImage ImageMathRepresentation = new MyImage(BuildHeader(fileSize), BuildHeaderInfo(width, height, imageSize), pixels);
+            return ImageMathRepresentation;
+        }
+
         #region Fractals
         public void Compute_Mandelbrot(int maxIterations, PixelRGB color)
         {
@@ -546,6 +595,17 @@ namespace BMP_App_WPF
                     if (!diverging)
                     {
                         imagePixels[i, j] = color;
+                    }
+                    else
+                    {
+                        {
+                            double smooth = (double)iterations / maxIterations;
+                            PixelRGB newColor = new PixelRGB(
+                                (byte)(9 * (1 - smooth) * (1 - smooth) * smooth * smooth * smooth * 255),
+                                (byte)(15 * (1 - smooth) * (1 - smooth) * smooth * smooth * 255),
+                                (byte)(8.5 * (1 - smooth) * (1 - smooth) * (1 - smooth) * smooth * 255));
+                            imagePixels[i, j] = newColor;
+                        }
                     }
                 }
             }
@@ -579,37 +639,29 @@ namespace BMP_App_WPF
                     {
                         imagePixels[i, j] = color;
                     }
+                    else
+                    {
+                        {
+                            double smooth = (double)iterations / maxIterations;
+                            PixelRGB newColor = new PixelRGB(
+                                (byte)(9 * (1 - smooth) * (1 - smooth) * smooth * smooth * smooth * 255),
+                                (byte)(15 * (1 - smooth) * (1 - smooth) * smooth * smooth * 255),
+                                (byte)(8.5 * (1 - smooth) * (1 - smooth) * (1 - smooth) * smooth * 255));
+                            imagePixels[i, j] = newColor;
+                        }
+                    }
                 }
             }
         }
 
         public void Julia(double cr, double ci)
         {
-            PixelRGB[] colorScheme = new PixelRGB[] { new PixelRGB(254, 135, 135), new PixelRGB(250, 179, 64), new PixelRGB(109, 153, 162), new PixelRGB(2, 128, 143), new PixelRGB(18, 76, 96) };
-            int[] detailLevels = new int[] { 2, 4, 8, 12, 100 };
-            for (int i = 0; i < colorScheme.Length; i++)
-            {
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                Compute_Julia(detailLevels[i], colorScheme[i], cr, ci);
-
-                watch.Stop();
-                Console.WriteLine(watch.ElapsedMilliseconds);
-            }
+            Compute_Julia(100, new PixelRGB(200, 200, 10), cr, ci);
         }
 
         public void Mandelbrot()
         {
-            PixelRGB[] colorScheme = new PixelRGB[] { new PixelRGB(255, 141, 112), new PixelRGB(252, 170, 130), new PixelRGB(115, 162, 172), new PixelRGB(11, 93, 105) };
-            int[] detailLevels = new int[] { 2, 4, 14, 255 };
-            for (int i = 0; i < colorScheme.Length; i++)
-            {
-                Console.WriteLine(i);
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                Compute_Mandelbrot(detailLevels[i], colorScheme[i]);
-
-                watch.Stop();
-                Console.WriteLine(watch.ElapsedMilliseconds);
-            }
+            Compute_Mandelbrot(100, new PixelRGB(200, 200, 10));
         }
 
         #endregion Fractals

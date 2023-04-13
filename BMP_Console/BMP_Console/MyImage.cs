@@ -517,16 +517,16 @@ namespace BMP_Console
             return this;
         }
 
-        public MyImage Maths(int a, int b)
+        public MyImage Maths(int a, int b, int c, int d)
         {
             PixelRGB[,] pixels = new PixelRGB[200, 200];
 
             for(double x = -10; x < 10; x+= 0.1)
             {
-                if(a * x + b > -10 && a *x + b < 10)
+                if(a * x * x *x  + b * x * x + c * x + d > -10 && a * x * x * x + b * x * x + c * x + d < 10)
                 {
-                    double nplus1 = a * (x + 0.1) + b;
-                    double nminus1 = a * (x - 0.1) + b;
+                    double nplus1 = a * (x + 0.1) * (x + 0.1) * (x + 0.1) + b * (x + 0.1) * (x + 0.1) + c * (x + 0.1) + d;
+                    double nminus1 = a * (x - 0.1) * (x - 0.1) * (x - 0.1) + b * (x - 0.1) * (x - 0.1) + c * (x - 0.1) + d;
 
                     if(nplus1 > -10 & nplus1 < 10 & nminus1 > -10 & nminus1 < 10)
                     {
@@ -556,12 +556,10 @@ namespace BMP_Console
             return ImageMathRepresentation;
         }
 
+        public void Maths()
+        {
 
-
-
-
-
-        //public void Maths();
+        }
     }
 }
 

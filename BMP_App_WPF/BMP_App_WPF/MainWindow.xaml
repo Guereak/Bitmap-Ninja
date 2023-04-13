@@ -43,9 +43,9 @@
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
-                        <ListBoxItem Name="editing" Tag="editing.xaml">Editing</ListBoxItem>
+                        <ListBoxItem Name="editing" Tag="editing.xaml">Modifier</ListBoxItem>
                         <ListBoxItem Tag="steganography.xaml">Stega</ListBoxItem>
-                        <ListBoxItem Tag="fractals.xaml">Fractal</ListBoxItem>
+                            <ListBoxItem Tag="fractals.xaml">Plus</ListBoxItem>
                     </ListBox>
                 </StackPanel>
 

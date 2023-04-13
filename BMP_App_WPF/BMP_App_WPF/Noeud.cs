@@ -8,19 +8,22 @@ namespace BMP_App_WPF
 {
     class Noeud
     {
-        public char Character { get; set; }
-        public int Frequency { get; set; }
-        public Noeud Left { get; set; }
-        public Noeud Right { get; set; }
+        public char character;
+        public int frequency;
+        public Noeud left;
+        public Noeud right;
 
-        public bool IsLeaf => Left == null && Right == null;
+        public bool isLeaf()
+        {
+            return left == null && right == null;
+        }
 
         public Noeud(char character, int frequency, Noeud left = null, Noeud right = null)
         {
-            Character = character;
-            Frequency = frequency;
-            Left = left;
-            Right = right;
+            this.character = character;
+            this.frequency = frequency;
+            this.left = left;
+            this.right = right;
         }
     }
 }

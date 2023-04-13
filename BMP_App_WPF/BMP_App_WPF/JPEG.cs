@@ -49,17 +49,17 @@ namespace BMP_App_WPF
             Console.WriteLine(rleCr);
 
             // Step 7: Encode the RLE data using Huffman encoding
-            Noeud huffmanTreeY = Huffman.BuildHuffmanTree(rleY);
-            Noeud huffmanTreeCb = Huffman.BuildHuffmanTree(rleCb);
-            Noeud huffmanTreeCr = Huffman.BuildHuffmanTree(rleCr);
+            Noeud huffmanTreeY;
+            Noeud huffmanTreeCb;
+            Noeud huffmanTreeCr;
 
             Dictionary<char, string> huffmanCodesY = new Dictionary<char, string>();
             Dictionary<char, string> huffmanCodesCb = new Dictionary<char, string>();
             Dictionary<char, string> huffmanCodesCr = new Dictionary<char, string>();
 
-            Huffman.GenerateHuffmanCodes(huffmanTreeY, huffmanCodesY, "");
-            Huffman.GenerateHuffmanCodes(huffmanTreeCb, huffmanCodesCb, "");
-            Huffman.GenerateHuffmanCodes(huffmanTreeCr, huffmanCodesCr, "");
+            //Huffman.GenerateHuffmanCodes(huffmanTreeY, huffmanCodesY, "");
+            //Huffman.GenerateHuffmanCodes(huffmanTreeCb, huffmanCodesCb, "");
+            //Huffman.GenerateHuffmanCodes(huffmanTreeCr, huffmanCodesCr, "");
 
             string encodedY = Huffman.HuffmanEncoding(rleY, huffmanCodesY);
             string encodedCb = Huffman.HuffmanEncoding(rleCb, huffmanCodesCb);
@@ -360,56 +360,5 @@ namespace BMP_App_WPF
                                                 {15, 17, 19, 21, 23, 25, 27, 29},
                                                 {17, 19, 21, 23, 25, 27, 29, 31} };
 
-
-        //For debug delete
-        public static void DisplayMatrix(int[,] matrix)
-        {
-            int rows = matrix.GetLength(0);
-            int cols = matrix.GetLength(1);
-            int maxLen = 0;
-
-            // Find the maximum length of any number in the matrix
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    int len = matrix[i, j].ToString().Length;
-                    if (len > maxLen)
-                    {
-                        maxLen = len;
-                    }
-                }
-            }
-
-            // Display the matrix with aligned numbers
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    Console.Write(matrix[i, j].ToString().PadLeft(maxLen + 1));
-                }
-                Console.WriteLine();
-            }
-        }
-
-        public static void Display4DMatrix(int[,,,] matrix)
-        {
-            for (int i = 0; i < matrix.GetLength(0); i++)
-            {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    for (int k = 0; k < matrix.GetLength(2); k++)
-                    {
-                        for (int l = 0; l < matrix.GetLength(3); l++)
-                        {
-                            Console.Write(matrix[i, j, k, l] + " ");
-                        }
-                        Console.WriteLine();
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine();
-            }
-        }
     }
 }

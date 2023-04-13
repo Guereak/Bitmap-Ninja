@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace BMP_App_WPF
 {
-    /// <summary>
-    /// Interaction logic for fractals.xaml
-    /// </summary>
     public partial class Fractals : Page
     {
         private MainWindow _mainWindow;
@@ -74,6 +71,29 @@ namespace BMP_App_WPF
             MainWindow.displayedImage = new MyImage(4000, 4000);
             MainWindow.displayedImage.Mandelbrot();
             _mainWindow.RefreshDisplayedImage();
+        }
+
+        private void Math_Click(object sender, RoutedEventArgs e)
+        {
+            if(MainWindow.displayedImage.Width != 200 || MainWindow.displayedImage.Height != 200)
+            {
+
+                MainWindow.displayedImage = new MyImage(200, 200);
+                _mainWindow.RefreshDisplayedImage();
+            }
+
+            int a, b, c, d;
+
+            if (Int32.TryParse(aTB.Text, out a) && Int32.TryParse(bTB.Text, out b) && Int32.TryParse(cTB.Text, out c) && Int32.TryParse(dTB.Text, out d))
+            {
+                Trace.WriteLine("Doing Maths");
+                MainWindow.displayedImage = MainWindow.displayedImage.Maths(a, b, c, d);
+                _mainWindow.RefreshDisplayedImage();
+            }
+            else
+            {
+                Trace.WriteLine("Invalid values");
+            }
         }
     }
 }

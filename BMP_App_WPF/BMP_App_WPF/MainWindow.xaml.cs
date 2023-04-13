@@ -130,20 +130,24 @@ namespace BMP_App_WPF
         {
             File.Delete($"../../Temp/{imageIndex}.bmp");
 
-            imageIndex--;
+            if (imageIndex > 1)
+            {
+                imageIndex--;
 
-            string tempImagePath = $"../../Temp/{imageIndex}.bmp";
+                string tempImagePath = $"../../Temp/{imageIndex}.bmp";
 
-            WidthHeight.Header = $"{displayedImage.Width}x{displayedImage.Height}";
+                WidthHeight.Header = $"{displayedImage.Width}x{displayedImage.Height}";
 
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-            bitmap.UriSource = new Uri(tempImagePath, UriKind.Relative);
-            bitmap.EndInit();
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                bitmap.UriSource = new Uri(tempImagePath, UriKind.Relative);
+                bitmap.EndInit();
 
-            DisplayImage.Source = bitmap;
+                DisplayImage.Source = bitmap;
+            }
+
 
             DisplayImage.InvalidateVisual();
             DisplayImage.InvalidateArrange();
