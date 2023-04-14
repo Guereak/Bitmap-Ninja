@@ -7,7 +7,7 @@ namespace BMP_App_WPF
         public static MyImage Hide(MyImage parentImage, MyImage hiddenImage, int byteShift)
         {
             if (parentImage.Width < hiddenImage.Width || parentImage.Height < hiddenImage.Height)
-                throw new Exception("L'image cachée doit être inférieure ou égale en taille à l'image parente");
+                throw new Exception("Hidden image must have a size inferior or equal to parent image");
 
 
             byte b = (byte)(Shift(byteShift) ^ 0xFF);

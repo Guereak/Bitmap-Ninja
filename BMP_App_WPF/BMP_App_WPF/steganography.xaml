@@ -9,7 +9,7 @@
       Title="Page2">
 
     <StackPanel Margin="5,10,5,0">
-        <TextBlock Margin="0,0,0,10">Cacher une image:</TextBlock>
+        <TextBlock Margin="0,0,0,10">Hide in an image:</TextBlock>
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -27,9 +27,9 @@
             <Slider Grid.Column="0" Minimum="1" Maximum="7" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" Name="slValue1" />
             <TextBox Grid.Column="1" Text="{Binding ElementName=slValue1, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right"/>
         </Grid>
-        <Button Height="20" Margin="0,5,0,5" Click="Hide_Click">Cacher</Button>
+        <Button Height="20" Margin="0,5,0,5" Click="Hide_Click">Hide</Button>
 
-        <TextBlock Margin="0,5,0,10">Retrouver une image:</TextBlock>
+        <TextBlock Margin="0,5,0,10">Restore hidden image:</TextBlock>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -38,6 +38,6 @@
             <Slider Grid.Column="0" Minimum="1" Maximum="7" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" Name="slValue2" />
             <TextBox Grid.Column="1" Text="{Binding ElementName=slValue2, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right"/>
         </Grid>
-        <Button Height="20" Margin="0,5,0,5" Click="Restore_Click">Retrouver</Button>
+        <Button Height="20" Margin="0,5,0,5" Click="Restore_Click">Restore</Button>
     </StackPanel>
 </Page>

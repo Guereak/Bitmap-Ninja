@@ -49,8 +49,6 @@ namespace BMP_App_WPF
 
             MainWindow.displayedImage = Steganography.RestoreHidden(MainWindow.displayedImage, slVal);
             _mainWindow.RefreshDisplayedImage();
-
-            Trace.WriteLine("Stega restore");
         }
 
         private void Hide_Click(object sender, RoutedEventArgs e)
@@ -60,13 +58,10 @@ namespace BMP_App_WPF
             {
                 MainWindow.displayedImage = Steganography.Hide(MainWindow.displayedImage, new MyImage(txtFilePath.Text), slVal);
                 _mainWindow.RefreshDisplayedImage();
-
-                Trace.WriteLine("Stega hide");
             }
             catch(Exception ex)
             {
                 Trace.WriteLine(ex.Message);
-                Trace.WriteLine("The file path provided was not correct");
             }
         }
     }

@@ -8,7 +8,6 @@ namespace BMP_App_WPF
 {
     public class PixelRGB
     {
-        //Can this be made into a struct?
         public byte red;
         public byte green;
         public byte blue;

@@ -11,14 +11,14 @@
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Fichier">
-                <MenuItem Header="Nouveau" Click="NewImage_Click"/>
-                <MenuItem Header="Ouvrir" Click="OpenImage_Click"/>
-                <MenuItem Header="Sauvegarder" Click="SaveImage_Click"/>
+            <MenuItem Header="File">
+                <MenuItem Header="New" Click="NewImage_Click"/>
+                <MenuItem Header="Open" Click="OpenImage_Click"/>
+                <MenuItem Header="Save" Click="SaveImage_Click"/>
                 <Separator />
-                <MenuItem Header="Quitter" Click="QuitApp_Click"/>
+                <MenuItem Header="Quit" Click="QuitApp_Click"/>
             </MenuItem>
-            <MenuItem Header="Annuler" Click="Undo_Click"/>
+            <MenuItem Header="Undo" Click="Undo_Click"/>
             <MenuItem Name="WidthHeight" Header="" IsHitTestVisible="False" />
         </Menu>
 
@@ -43,9 +43,9 @@
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
-                        <ListBoxItem Name="editing" Tag="editing.xaml">Modifier</ListBoxItem>
-                        <ListBoxItem Tag="steganography.xaml">Stega</ListBoxItem>
-                            <ListBoxItem Tag="fractals.xaml">Plus</ListBoxItem>
+                            <ListBoxItem Tag="editing.xaml">Edit</ListBoxItem>
+                        <ListBoxItem Tag="steganography.xaml">Stegano</ListBoxItem>
+                            <ListBoxItem Tag="fractals.xaml">More</ListBoxItem>
                     </ListBox>
                 </StackPanel>
 

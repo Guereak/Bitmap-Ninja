@@ -433,9 +433,6 @@ namespace BMP_App_WPF
             int ignoredPixY = convHeight / 2;
 
             //image 
-
-            //Création d'une nouvelle image pour stocker le résultat
-            //Boucle à travers chaque pixel de l'image
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)

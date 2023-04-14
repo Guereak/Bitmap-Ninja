@@ -47,21 +47,18 @@ namespace BMP_App_WPF
         private void Greyscale_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.ToGrayScale();
-            Trace.WriteLine("GREYSCALE");
             _mainWindow.RefreshDisplayedImage();
         }
 
         private void BlackAndWhite_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.ToBlackAndWhite();
-            Trace.WriteLine("BLACKANDWHITE");
             _mainWindow.RefreshDisplayedImage();
         }
 
         private void Negative_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.Negative();
-            Trace.WriteLine("NEGATIVE");
             _mainWindow.RefreshDisplayedImage();
         }
 
@@ -71,10 +68,7 @@ namespace BMP_App_WPF
             if (Double.TryParse(RotationTextBox.Text, out rotationValue))
             {
                 MainWindow.displayedImage = MainWindow.displayedImage.Rotate((float)rotationValue);
-
                 _mainWindow.RefreshDisplayedImage();
-
-                Trace.WriteLine("Rotation");
             }
             else
             {
@@ -91,28 +85,22 @@ namespace BMP_App_WPF
             {
                 MainWindow.displayedImage = MainWindow.displayedImage.RescaleByFactor(agrandissementXValue, agrandissementYValue);
                 _mainWindow.RefreshDisplayedImage();
-
-                Trace.WriteLine("Agrandissement");
             }
             else
             {
                 Trace.WriteLine("Agrandissement could not occur. Invalid values");
-                Trace.WriteLine(AgrandissementTextBox1.Text);
-                Trace.WriteLine(AgrandissementTextBox2.Text);
             }
         }
 
         private void Horizontal_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage.Mirror_Horizontal();
-            Trace.WriteLine("MIRROR HORIZONTAL");
             _mainWindow.RefreshDisplayedImage();
         }
 
         private void Vertical_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage.Mirror_Vertical();
-            Trace.WriteLine("MIRROR VERTICAL");
             _mainWindow.RefreshDisplayedImage();
         }
 
@@ -121,8 +109,6 @@ namespace BMP_App_WPF
         private void Convolution_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.displayedImage = MainWindow.displayedImage.Convolution11(MyImage.convolutions[comboBox.SelectedIndex]);
-            Trace.WriteLine("Convolution " + comboBox.SelectedItem);
-
             _mainWindow.RefreshDisplayedImage();
         }
     }

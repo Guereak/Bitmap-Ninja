@@ -86,7 +86,6 @@ namespace BMP_App_WPF
 
             if (Int32.TryParse(aTB.Text, out a) && Int32.TryParse(bTB.Text, out b) && Int32.TryParse(cTB.Text, out c) && Int32.TryParse(dTB.Text, out d))
             {
-                Trace.WriteLine("Doing Maths");
                 MainWindow.displayedImage = MainWindow.displayedImage.Maths(a, b, c, d);
                 _mainWindow.RefreshDisplayedImage();
             }
